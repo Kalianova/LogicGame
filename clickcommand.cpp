@@ -76,8 +76,8 @@ void ClickCommand::mousePressEvent(QGraphicsSceneMouseEvent *event)
 }
 
 
-ClickFunction::ClickFunction(double Size)
-	:size(Size)
+ClickFunction::ClickFunction(double Size, int Row, int Colum)
+	:size(Size), row(Row), colum(Colum)
 {
 	pen = new QPen(Qt::black, 6, Qt::SolidLine, Qt::SquareCap, Qt::MiterJoin);
 }

@@ -64,7 +64,7 @@ class ClickFunction : public QObject, public QGraphicsItem
 {
 	Q_OBJECT
 public:
-	ClickFunction(double);
+	ClickFunction(double, int, int);
 	void changePress();
 	bool isPressed() { return pressed; }
 	ClickColor* getColor() { return clickcolor; }
@@ -87,6 +87,12 @@ public:
 			command = clickcommand->getNumberCommand();
 		}
 		return color + command;	}
+	int getRow() {
+		return row;
+	}
+	int getColum() {
+		return colum;
+	}
 	~ClickFunction() {};
 signals:
 	void functionChanged(ClickFunction*);
@@ -99,7 +105,7 @@ private:
 	void paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget*);
 	QColor color;
 	double size;
-	int index;
+	int row, colum;
 	bool pressed{ false };
 	QPen* pen;
 	QPixmap image;

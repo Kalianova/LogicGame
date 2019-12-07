@@ -1,6 +1,7 @@
 #include "gamewindow.h"
 #include "ui_gamewindow.h"
 #include <QPixmap>
+#include <QKeyEvent>
 
 
 gamewindow::gamewindow(QWidget* parent) :
@@ -14,7 +15,7 @@ gamewindow::gamewindow(QWidget* parent) :
 	ui->setupUi(this);
 	this->setWindowTitle("Game");
 	this->resize(1000, 585);
-
+	
 	scenemap = new QGraphicsScene();
 	scenecommands = new QGraphicsScene();
 
@@ -56,16 +57,16 @@ void gamewindow::setImage(int row, int colum, QString path, qreal rotation)
 	pix->setParentItem(scenemap->itemAt(row * size + size/2 , colum * size + size/2 , QTransform()));
 	switch ((int)rotation) {
 	case 0:
-		pix->setPos(row * size + 4, colum * size + 4);
+		pix->setPos(row * size, colum * size);
 		break;
 	case 90:
-		pix->setPos(row * size + size + 4, colum * size + 4);
+		pix->setPos(row * size + size, colum * size);
 		break;
 	case 180:
-		pix->setPos(row * size + size + 4, colum * size + size + 4) ;
+		pix->setPos(row * size + size, colum * size + size) ;
 		break;
 	case 270:
-		pix->setPos(row * size + 4,colum * size + size + 4);
+		pix->setPos(row * size,colum * size + size);
 		break;
 	}
 }
@@ -83,9 +84,10 @@ void gamewindow::setSceneCommands() {
 		setFunc(i + count, map.getFunction(i), i);
 		count += map.getFunction(i)/10 / (SIZE_OF_FUNCTIONS + 1);
 	}
-	scenecommands->setSceneRect(0, 0, ui->commands->width() - 4, (this->ui->commands->width() - 4) / (SIZE_OF_FUNCTIONS + 3) * (count + map.getFunctionsCount()) + 7);
+	scenecommands->setSceneRect(0, 0, ui->commands->width() - 4, ui->commands->height() -4/*(this->ui->commands->width() - 4) / (SIZE_OF_FUNCTIONS + 3) * (count + map.getFunctionsCount()) + 7*/);
 	if (vectorCommand.size() != map.getCommandsCount()) {
 		vectorFunction[0][0]->changePress();
+		clickFunctionNow = vectorFunction[0][0];
 	}
 	for (int i = 0; i < map.getCommandsCount(); i++) {
 		setCommand(i);
@@ -98,7 +100,7 @@ void gamewindow::setSceneCommands() {
 void gamewindow::setCommand(int num) {
 	double size = (this->ui->commands->width() - 4) / (SIZE_OF_FUNCTIONS + 3);
 	if (vectorCommand.size() > num) {
-		vectorCommand[num]->setPos(size / 2, size / 2 + size * num);
+		vectorCommand[num]->setPos(size / 2 +( SIZE_OF_FUNCTIONS+0.7)*size, size / 2 + size * num);
 		vectorCommand[num]->setSize(size);
 		vectorCommand[num]->update();
 	}
@@ -154,7 +156,7 @@ void gamewindow::setCommand(int num) {
 			clickcommand = new ClickCommand(image, size, 8);
 			break;
 		}
-		clickcommand->setPos(size / 2, size / 2 + size * num);
+		clickcommand->setPos(size / 2 + (SIZE_OF_FUNCTIONS + 0.7) * size, size / 2 + size * num);
 		connect(clickcommand, SIGNAL(commandChanged(ClickCommand*)), this, SLOT(command_Pressed(ClickCommand*)));
 		scenecommands->addItem(clickcommand);
 		vectorCommand.push_back(clickcommand);
@@ -169,13 +171,13 @@ void gamewindow::setFunc(int count, int countRect, int functionNumber) {
 
 	QGraphicsPixmapItem* pix = new QGraphicsPixmapItem(image);
 	rect = new QGraphicsRectItem();
-	rect->setRect(size*1.5 + 2,
+	rect->setRect(2,
 		size * count + 2 + functionNumber * 0.2 * size,
 		size - 4,
 		size - 4);
 	rect->setBrush(Qt::gray);
 
-	pix->setPos(size*1.5 + 2, size* count + 2 + functionNumber*0.2*size);
+	pix->setPos(2, size* count + 2 + functionNumber*0.2*size);
 	pix->setParentItem(rect);
 
 	scenecommands->addItem(rect);
@@ -183,14 +185,14 @@ void gamewindow::setFunc(int count, int countRect, int functionNumber) {
 
 	for (size_t i = 0; i < countRect/10; i++) {
 		if (vectorFunction[functionNumber].size() > i) {
-			vectorFunction[functionNumber][i]->setPos(size * 2.5 + size * (i % SIZE_OF_FUNCTIONS) + size/2,
+			vectorFunction[functionNumber][i]->setPos(size + size * (i % SIZE_OF_FUNCTIONS) + size/2,
 				size * (count + (i) / SIZE_OF_FUNCTIONS + 0.5) + functionNumber*size*0.2);
 			vectorFunction[functionNumber][i]->setSize(size);
 			vectorFunction[functionNumber][i]->update();
 		}
 		else {
-			clickfunction = new ClickFunction(size);
-			clickfunction->setPos(size * 2.5 + size * (i % SIZE_OF_FUNCTIONS) + size/2,
+			clickfunction = new ClickFunction(size, functionNumber, i);
+			clickfunction->setPos(size+ size * (i % SIZE_OF_FUNCTIONS) + size/2,
 				size * (count + (i) / SIZE_OF_FUNCTIONS + 0.5 ) + functionNumber * size*0.2);
 			connect(clickfunction, SIGNAL(functionChanged(ClickFunction*)), this, SLOT(function_Pressed(ClickFunction*)));
 			vectorFunction[functionNumber].push_back(clickfunction);
@@ -377,60 +379,40 @@ void gamewindow::resizeEvent(QResizeEvent* event) {
 }
 
 void gamewindow::color_Pressed(ClickColor* color) {
-	for (int i = 0; i < vectorFunction.size(); i++) {
-		for (ClickFunction* function : vectorFunction[i]) {
-			if (function->isPressed()) {
-				if (function->getColor() != nullptr && function->getColor() != color) {
-					function->getColor()->changePress();
-				}
-				if (color->isPressed()) {
-					function->setColor(nullptr);
-				}
-				else {
-					function->setColor(color);
-				}
-				function->update();
-				break;
-			}
-		}
+	if (clickFunctionNow->getColor() != nullptr && clickFunctionNow->getColor() != color) {
+		clickFunctionNow->getColor()->changePress();
 	}
+	if (color->isPressed()) {
+		clickFunctionNow->setColor(nullptr);
+	}
+	else {
+		clickFunctionNow->setColor(color);
+	}
+	clickFunctionNow->update();
 }
 
 void gamewindow::function_Pressed(ClickFunction* pressedFunction) {
-	for (int i = 0; i < vectorFunction.size(); i++) {
-		for (ClickFunction* function : vectorFunction[i]) {
-			if (function->isPressed()) {
-				function->changePress();
-				if (function->getCommand() == nullptr) {
-					function->setColor(nullptr);
-				}
-				if (pressedFunction->getCommand() == nullptr) {
-					pressedFunction->setCommand(function->getCommand());
-				}
-				break;
-			}
-		}
+	clickFunctionNow->changePress();
+	if (clickFunctionNow->getCommand() == nullptr) {
+		clickFunctionNow->setColor(nullptr);
 	}
+	if (pressedFunction->getCommand() == nullptr) {
+		pressedFunction->setCommand(clickFunctionNow->getCommand());
+	}
+	clickFunctionNow = pressedFunction;
 }
 
 void gamewindow::command_Pressed(ClickCommand* command) {
-	for (int i = 0; i < vectorFunction.size(); i++) {
-		for (ClickFunction* function : vectorFunction[i]) {
-			if (function->isPressed()) {
-				if (function->getCommand() != nullptr && function->getCommand()!=command) {
-					function->getCommand()->changePress();
-				}
-				if (command->isPressed()) {
-					function->setCommand(nullptr);
-				}
-				else {
-					function->setCommand(command);
-				}
-				function->update();
-				break;
-			}
-		}
+	if (clickFunctionNow->getCommand() != nullptr && clickFunctionNow->getCommand() != command) {
+		clickFunctionNow->getCommand()->changePress();
 	}
+	if (command->isPressed()) {
+		clickFunctionNow->setCommand(nullptr);
+	}
+	else {
+		clickFunctionNow->setCommand(command);
+	}
+	clickFunctionNow->update();
 }
 
 void gamewindow::on_Stop_clicked() {
@@ -464,4 +446,71 @@ void gamewindow::on_Restart_clicked() {
 void gamewindow::on_Back_clicked() {
 	parentWindow->setVisible(true);
 	this->close();
+}
+
+void gamewindow::keyPressEvent(QKeyEvent* event)
+{
+	QCoreApplication::processEvents();
+	int key = event->key();
+	int colum = clickFunctionNow->getColum();
+	int row = clickFunctionNow->getRow();
+	if (key == Qt::Key_W || key == 1062 || key == Qt::Key_Up) {
+		if (row == 0) {
+			if (vectorFunction[row].size() > colum - SIZE_OF_FUNCTIONS) {
+				function_Pressed(vectorFunction[row][colum - SIZE_OF_FUNCTIONS]);
+			}
+		}
+		else {
+			if (vectorFunction[row].size() > colum - SIZE_OF_FUNCTIONS) {
+				function_Pressed(vectorFunction[row][colum - SIZE_OF_FUNCTIONS]);
+			}
+			else {
+				function_Pressed(vectorFunction[clickFunctionNow->getRow() - 1][clickFunctionNow->getColum()]);
+			}
+		}
+	}
+	else if(key == Qt::Key_S || key == 1067 || key == Qt::Key_Down){
+		if (row + 1 == vectorFunction.size()) {
+			if (vectorFunction[row].size() > colum + SIZE_OF_FUNCTIONS) {
+				function_Pressed(vectorFunction[row][colum + SIZE_OF_FUNCTIONS]);
+			}
+		}
+		else {
+			if (vectorFunction[row].size() > colum + SIZE_OF_FUNCTIONS) {
+				function_Pressed(vectorFunction[row][colum + SIZE_OF_FUNCTIONS]);
+			}
+			else {
+				function_Pressed(vectorFunction[row + 1][colum]);
+			}
+		}
+	}
+	else if (key == Qt::Key_D || key == 1042 || key == Qt::Key_Right) {
+		if (colum + 1== vectorFunction[vectorFunction.size()-1].size() && row + 1== vectorFunction.size()) {
+
+		}
+		else {
+			if (colum + 1 == vectorFunction[clickFunctionNow->getRow()].size()) {
+				function_Pressed(vectorFunction[row + 1][0]);
+			}
+			else {
+				function_Pressed(vectorFunction[row][colum + 1]);
+			}
+		}
+	}
+	else if (key == Qt::Key_A || key == 1060 || key == Qt::Key_Left) {
+		if (colum == 0 && row == 0) {
+		
+		}
+		else {
+			if (colum == 0) {
+				colum = vectorFunction[row - 1].size() - 1;
+				function_Pressed(vectorFunction[row - 1][colum]);
+			}
+			else {
+				function_Pressed(vectorFunction[row][colum - 1]);
+			}
+	
+		}
+	}
+	clickFunctionNow->changePress();
 }

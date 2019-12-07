@@ -85,7 +85,7 @@ void CreateMap::createImage(QString path, double size, int count, int rotation )
 
 void CreateMap::createFunction(int row, int colum, double size)
 {
-	clickfunction = new ClickFunction(size);
+	clickfunction = new ClickFunction(size, 0 ,0);
 	clickfunction->setPos(size * row + size/2 - 2 , size * colum + size/2 - 2);
 	createmap->addItem(clickfunction);
 	connect(clickfunction, SIGNAL(rectangleChanged(ClickFunction*)), this, SLOT(rectangle_Pressed(ClickFunction*)));

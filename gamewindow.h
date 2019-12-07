@@ -70,6 +70,7 @@ private:
 	ClickColor* clickcolor;
     ClickCommand *clickcommand;
 	ClickFunction* clickfunction;
+	ClickFunction* clickFunctionNow;
     QPainter *painter;
 	bool move{ true };
 	int count{ 0 };
@@ -79,6 +80,8 @@ private:
 	std::vector<ClickColor*>vectorColor;
 	std::vector<QGraphicsRectItem*> vectorNameFunction;
 	int countStars{ 0 };
+protected:
+	void keyPressEvent(QKeyEvent* event);
 };
 
 #endif // GAMEWINDOW_H
