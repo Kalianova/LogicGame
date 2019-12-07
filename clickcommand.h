@@ -36,7 +36,6 @@ class ClickCommand: public QObject, public QGraphicsItem
 {
     Q_OBJECT
 public:
-
     ClickCommand(QPixmap, double, int);
 	void changePress();
 	bool isPressed() { return pressed; }
@@ -58,8 +57,6 @@ private:
 	int index{ 0 };
 	double size;
 	int command{ 0 };
-	int row{ 0 };
-	int column{ 0 };
 	bool pressed{ false };
 };
 
@@ -81,13 +78,22 @@ public:
 	void setSize(double Size) {
 		size = Size;
 	}
-	int getFunction() { return clickcolor->getNumberColor() + clickcommand->getNumberCommand()*10; }
+	int getFunction() {
+		int color{ 0 }, command{ 0 };
+		if (clickcolor != nullptr) {
+			color = clickcolor->getNumberColor();
+		}
+		if (clickcommand != nullptr) {
+			command = clickcommand->getNumberCommand();
+		}
+		return color + command;	}
 	~ClickFunction() {};
 signals:
-	void functionChanged();
+	void functionChanged(ClickFunction*);
 	void rectangleChanged(ClickFunction*);
 protected:
 	void mousePressEvent(QGraphicsSceneMouseEvent*);
+	
 private:
 	QRectF boundingRect() const;
 	void paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget*);

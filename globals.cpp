@@ -6,14 +6,3 @@ globals::globals()
 
 
 }
-
-QString globals::getPath()
-{
-	return path;
-}
-
-void globals::setPath()
-{
-	/*std::ifstream stream;
-	stream.open();*/
-}

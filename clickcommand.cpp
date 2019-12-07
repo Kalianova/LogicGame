@@ -120,8 +120,14 @@ void ClickFunction::paint(QPainter* painter, const QStyleOptionGraphicsItem* opt
 void ClickFunction::mousePressEvent(QGraphicsSceneMouseEvent* event)
 {
 	if (!pressed) {
-		emit functionChanged();
+		emit functionChanged(this);
 		changePress();
+	}
+	if (event->button() == Qt::RightButton) {
+		int k = 6;
+	}
+	else {
+		int k = 7;
 	}
 	emit rectangleChanged(this);
 	Q_UNUSED(event)

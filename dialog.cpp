@@ -10,6 +10,14 @@ Dialog::Dialog(QWidget *parent) :
 
 }
 
+Dialog::Dialog(QString label, QString button, QWidget* parent) :
+	QDialog(parent),
+	ui(new Ui::Dialog)
+{
+	ui->setupUi(this);
+	this->setWindow(label, button);
+}
+
 void Dialog::setWindow(QString label, QString button)
 {
 	ui->label->setText(label);

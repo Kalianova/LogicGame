@@ -544,7 +544,7 @@
      </item>
     </layout>
    </widget>
-   <widget class="QSpinBox" name="spinBox">
+   <widget class="QSpinBox" name="sizeOfMap">
     <property name="geometry">
      <rect>
       <x>330</x>
@@ -557,13 +557,13 @@
      <number>3</number>
     </property>
     <property name="maximum">
-     <number>30</number>
+     <number>20</number>
     </property>
     <property name="value">
      <number>10</number>
     </property>
    </widget>
-   <widget class="QLabel" name="label">
+   <widget class="QLabel" name="labelSizOfMap">
     <property name="geometry">
      <rect>
       <x>100</x>

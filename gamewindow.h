@@ -50,7 +50,7 @@ virtual void resizeEvent(QResizeEvent *event) override;
 private slots:
 
     void color_Pressed(ClickColor*);
-	void function_Pressed();
+	void function_Pressed(ClickFunction*);
 	void command_Pressed(ClickCommand*);
 
     void on_Stop_clicked();
@@ -61,6 +61,7 @@ private slots:
 private:
     Ui::gamewindow *ui;
 	QWidget* parentWindow;
+	QString pathToMap;
     Map map;
 	QMainWindow mainwindow;
     QGraphicsScene *scenemap;
@@ -70,6 +71,8 @@ private:
     ClickCommand *clickcommand;
 	ClickFunction* clickfunction;
     QPainter *painter;
+	bool move{ true };
+	int count{ 0 };
     std::vector<int> vectorCommands;
 	std::vector<std::vector<ClickFunction*>> vectorFunction;
 	std::vector<ClickCommand*> vectorCommand;

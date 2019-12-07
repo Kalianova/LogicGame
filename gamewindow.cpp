@@ -1,7 +1,6 @@
 #include "gamewindow.h"
 #include "ui_gamewindow.h"
 #include <QPixmap>
-#include <QGraphicsView>
 
 
 gamewindow::gamewindow(QWidget* parent) :
@@ -9,27 +8,26 @@ gamewindow::gamewindow(QWidget* parent) :
 	parentWindow(parent),
 	ui(new Ui::gamewindow)
 {
+	QDir* dir;
+	//pathToMap = (dir->currentPath() + "/map/map1.txt");
+	pathToMap = ":/map/map1.txt";
 	ui->setupUi(this);
 	this->setWindowTitle("Game");
-	this->resize(804, 500);
-	
+	this->resize(1000, 585);
+
 	scenemap = new QGraphicsScene();
 	scenecommands = new QGraphicsScene();
 
-	ui->frame->resize(458, 458);
-	ui->frame_2->resize(317, 458);
-	ui->graphicsView->resize(430, 430);
-	ui->commands->resize(289, 430);
+	ui->frame->resize(486, 486);
+	ui->frame_2->resize(485, 486);
+	ui->graphicsView->resize(452, 452);
+	ui->commands->resize(452, 452);
 
 	scenemap->setBackgroundBrush(QBrush(Qt::black));
-	map.ReadFrom(":/map/map1.txt");
+	map.ReadFrom(pathToMap);
 
 	ui->graphicsView->setScene(scenemap);
 	ui->commands->setScene(scenecommands);
-
-	scenemap->setSceneRect(0, 0, ui->graphicsView->width() - 4, ui->graphicsView->height() - 4);
-	scenecommands->setSceneRect(0, 0, ui->commands->width() - 4, ui->commands->height()- 4);
-	//this->resizeEvent(new QResizeEvent(QSize(1000, 1000), QSize(1000, 1000)));
 }
 
 gamewindow::~gamewindow() {
@@ -58,16 +56,16 @@ void gamewindow::setImage(int row, int colum, QString path, qreal rotation)
 	pix->setParentItem(scenemap->itemAt(row * size + size/2 , colum * size + size/2 , QTransform()));
 	switch ((int)rotation) {
 	case 0:
-		pix->setPos(row * size, colum * size);
+		pix->setPos(row * size + 4, colum * size + 4);
 		break;
 	case 90:
-		pix->setPos(row * size + size, colum * size);
+		pix->setPos(row * size + size + 4, colum * size + 4);
 		break;
 	case 180:
-		pix->setPos(row * size + size, colum * size + size);
+		pix->setPos(row * size + size + 4, colum * size + size + 4) ;
 		break;
 	case 270:
-		pix->setPos(row * size, colum * size + size);
+		pix->setPos(row * size + 4,colum * size + size + 4);
 		break;
 	}
 }
@@ -77,13 +75,15 @@ void gamewindow::setPlayer(Player player) {
 }
 
 void gamewindow::setSceneCommands() {
+	move = true;
 	vectorFunction.resize(map.getFunctionsCount());
 	vectorNameFunction.resize(0);
 	int count = 0;
 	for (int i = 0; i < map.getFunctionsCount(); i++) {
 		setFunc(i + count, map.getFunction(i), i);
-		count += map.getFunction(i) / 5;
+		count += map.getFunction(i)/10 / (SIZE_OF_FUNCTIONS + 1);
 	}
+	scenecommands->setSceneRect(0, 0, ui->commands->width() - 4, (this->ui->commands->width() - 4) / (SIZE_OF_FUNCTIONS + 3) * (count + map.getFunctionsCount()) + 7);
 	if (vectorCommand.size() != map.getCommandsCount()) {
 		vectorFunction[0][0]->changePress();
 	}
@@ -141,6 +141,18 @@ void gamewindow::setCommand(int num) {
 			image.load(":/image/function2");
 			clickcommand = new ClickCommand(image, size, 9);
 			break;
+		case 10:
+			image.load(":/image/function3");
+			clickcommand = new ClickCommand(image, size, 8);
+			break;
+		case 11:
+			image.load(":/image/function4");
+			clickcommand = new ClickCommand(image, size, 9);
+			break;
+		case 12:
+			image.load(":/image/function5");
+			clickcommand = new ClickCommand(image, size, 8);
+			break;
 		}
 		clickcommand->setPos(size / 2, size / 2 + size * num);
 		connect(clickcommand, SIGNAL(commandChanged(ClickCommand*)), this, SLOT(command_Pressed(ClickCommand*)));
@@ -150,37 +162,37 @@ void gamewindow::setCommand(int num) {
 }
 
 void gamewindow::setFunc(int count, int countRect, int functionNumber) {
-	double size = (this->ui->commands->width() - 4) / (SIZE_OF_FUNCTIONS + 3);
+	double size = (this->ui->commands->width() - 4) / (SIZE_OF_FUNCTIONS + 4);
 	QPixmap image;
-	image.load(":/image/function" + QString::number(functionNumber + 1));
+	image.load(":/image/function" + QString::number(countRect%10));
 	image = image.scaled(size - 4, size - 4);
 
 	QGraphicsPixmapItem* pix = new QGraphicsPixmapItem(image);
 	rect = new QGraphicsRectItem();
-	rect->setRect(size + 2,
-		size * count + 2,
+	rect->setRect(size*1.5 + 2,
+		size * count + 2 + functionNumber * 0.2 * size,
 		size - 4,
 		size - 4);
 	rect->setBrush(Qt::gray);
 
-	pix->setPos(size + 2, size * count + 2);
+	pix->setPos(size*1.5 + 2, size* count + 2 + functionNumber*0.2*size);
 	pix->setParentItem(rect);
 
 	scenecommands->addItem(rect);
 	vectorNameFunction.push_back(rect);
 
-	for (size_t i = 0; i < countRect; i++) {
+	for (size_t i = 0; i < countRect/10; i++) {
 		if (vectorFunction[functionNumber].size() > i) {
-			vectorFunction[functionNumber][i]->setPos(size * 2.5 + size * (i % 5),
-				size * (count + (i) / 5 + 0.5));
+			vectorFunction[functionNumber][i]->setPos(size * 2.5 + size * (i % SIZE_OF_FUNCTIONS) + size/2,
+				size * (count + (i) / SIZE_OF_FUNCTIONS + 0.5) + functionNumber*size*0.2);
 			vectorFunction[functionNumber][i]->setSize(size);
 			vectorFunction[functionNumber][i]->update();
 		}
 		else {
 			clickfunction = new ClickFunction(size);
-			clickfunction->setPos(size * 2.5 + size * (i % 5),
-				size * (count + (i) / 5 + 0.5));
-			connect(clickfunction, SIGNAL(functionChanged()), this, SLOT(function_Pressed()));
+			clickfunction->setPos(size * 2.5 + size * (i % SIZE_OF_FUNCTIONS) + size/2,
+				size * (count + (i) / SIZE_OF_FUNCTIONS + 0.5 ) + functionNumber * size*0.2);
+			connect(clickfunction, SIGNAL(functionChanged(ClickFunction*)), this, SLOT(function_Pressed(ClickFunction*)));
 			vectorFunction[functionNumber].push_back(clickfunction);
 			scenecommands->addItem(clickfunction);
 		}
@@ -227,7 +239,7 @@ void gamewindow::deleteRect(int row, int colum) {
 
 void gamewindow::moveForward(int rowNow, int columNow, int row, int colum)
 {
-	double size = (this->ui->graphicsView->height() - 4)/10;
+	double size = (this->ui->graphicsView->height() - 4) / 10;
 	if (row >= 0 && colum >= 0 && row < map.getSize() && colum < map.getSize()) {
 		if (map.ColorOfRect(row, colum) != Qt::black) {
 			deleteRect(rowNow, columNow);
@@ -244,13 +256,15 @@ void gamewindow::moveForward(int rowNow, int columNow, int row, int colum)
 				window->setWindow("Congratulations. Level passed.", "Next Level");
 				window->show();
 				connect(window, SIGNAL(button_pushed()), this, SLOT(on_Stop_clicked()));
+				move = false;
 			}
 			return;
 		}
 	}
-
+	else {
+		move = false;
+	}
 }
-
 void gamewindow::moveTurnRight(int row, int colum)
 {
 	deleteRect(row, colum);
@@ -267,8 +281,6 @@ void gamewindow::moveTurnLeft(int row, int colum)
 	setPlayer(map.player);
 }
 
-
-
 void gamewindow::paintRect(int row, int colum, QColor color)
 {
 	deleteRect(row, colum);
@@ -278,60 +290,57 @@ void gamewindow::paintRect(int row, int colum, QColor color)
 
 void gamewindow::callFunction(int num)
 {
-	for (ClickFunction* function : vectorFunction[num]) {
-		if (checkColor(function)) {
-			switch (function->getCommand()->getIndex()) {
-			case 0:
-				break;
-			case 1:
-				switch (map.player.getRotation()) {
+	count++;
+	if (move && count < 500) {
+		for (ClickFunction* function : vectorFunction[num]) {
+			if (checkColor(function)) {
+				switch (function->getCommand()->getIndex()) {
 				case 0:
-					moveForward(map.player.getRow(), map.player.getColum(), map.player.getRow() - 1, map.player.getColum());
 					break;
-				case 90:
-					moveForward(map.player.getRow(), map.player.getColum(), map.player.getRow(), map.player.getColum() + 1);
+				case 1:
+					switch (map.player.getRotation()) {
+					case 0:
+						moveForward(map.player.getRow(), map.player.getColum(), map.player.getRow() - 1, map.player.getColum());
+						break;
+					case 90:
+						moveForward(map.player.getRow(), map.player.getColum(), map.player.getRow(), map.player.getColum() + 1);
+						break;
+					case 180:
+						moveForward(map.player.getRow(), map.player.getColum(), map.player.getRow() + 1, map.player.getColum());
+						break;
+					case 270:
+						moveForward(map.player.getRow(), map.player.getColum(), map.player.getRow(), map.player.getColum() - 1);
+						break;
+					}
 					break;
-				case 180:
-					moveForward(map.player.getRow(), map.player.getColum(), map.player.getRow() + 1, map.player.getColum());
+				case 2:
+					moveTurnRight(map.player.getRow(), map.player.getColum());
 					break;
-				case 270:
-					moveForward(map.player.getRow(), map.player.getColum(), map.player.getRow(), map.player.getColum() - 1);
+				case 3:
+					moveTurnLeft(map.player.getRow(), map.player.getColum());
+					break;
+				case 4:
+					map.setColor(map.player.getRow(), map.player.getColum(), "1");
+					paintRect(map.player.getRow(), map.player.getColum(), Qt::blue);
+					break;
+				case 5:
+					map.setColor(map.player.getRow(), map.player.getColum(), "2");
+					paintRect(map.player.getRow(), map.player.getColum(), Qt::darkMagenta);
+					break;
+				case 6:
+					map.setColor(map.player.getRow(), map.player.getColum(), "3");
+					paintRect(map.player.getRow(), map.player.getColum(), Qt::red);
+					break;
+				case 7:
+					map.setColor(map.player.getRow(), map.player.getColum(), "4");
+					paintRect(map.player.getRow(), map.player.getColum(), Qt::darkYellow);
+					break;
+				default:
+					callFunction(function->getCommand()->getIndex() % 8);
 					break;
 				}
-				break;
-			case 2:
-				moveTurnRight(map.player.getRow(), map.player.getColum());
-				break;
-			case 3:
-				moveTurnLeft(map.player.getRow(), map.player.getColum());
-				break;
-			case 4:
-				map.setColor(map.player.getRow(), map.player.getColum(), "1");
-				paintRect(map.player.getRow(), map.player.getColum(), Qt::blue);
-				break;
-			case 5:
-				map.setColor(map.player.getRow(), map.player.getColum(), "2");
-				paintRect(map.player.getRow(), map.player.getColum(), Qt::darkMagenta);
-				break;
-			case 6:
-				map.setColor(map.player.getRow(), map.player.getColum(), "3");
-				paintRect(map.player.getRow(), map.player.getColum(), Qt::red);
-				break;
-			case 7:
-				map.setColor(map.player.getRow(), map.player.getColum(), "4");
-				paintRect(map.player.getRow(), map.player.getColum(), Qt::darkYellow);
-				break;
-			default:
-				callFunction(function->getCommand()->getIndex() % 8);
-				break;
 			}
 		}
-
-	}
-	if (countStars != 0) {
-		Dialog* window = new Dialog();
-		window->show();
-		connect(window, SIGNAL(button_pushed()), this, SLOT(on_Stop_clicked()));
 	}
 }
 
@@ -356,7 +365,6 @@ void gamewindow::resizeEvent(QResizeEvent* event) {
 	}
 	ui->frame_2->setGeometry(ui->frame->geometry().x() + ui->frame->height(), ui->frame->geometry().y(), ui->centralwidget->width() - ui->frame->geometry().x() * 2 - ui->frame->height(), ui->frame->height());
 	scenemap->setSceneRect(0, 0, ui->graphicsView->width() - 4, ui->graphicsView->height() - 4);
-	scenecommands->setSceneRect(0, 0, ui->commands->width() - 4, ui->commands->height() - 4);
 
 	ui->graphicsView->setScene(scenemap);
 	ui->commands->setScene(scenecommands);
@@ -388,13 +396,16 @@ void gamewindow::color_Pressed(ClickColor* color) {
 	}
 }
 
-void gamewindow::function_Pressed() {
+void gamewindow::function_Pressed(ClickFunction* pressedFunction) {
 	for (int i = 0; i < vectorFunction.size(); i++) {
 		for (ClickFunction* function : vectorFunction[i]) {
 			if (function->isPressed()) {
 				function->changePress();
 				if (function->getCommand() == nullptr) {
 					function->setColor(nullptr);
+				}
+				if (pressedFunction->getCommand() == nullptr) {
+					pressedFunction->setCommand(function->getCommand());
 				}
 				break;
 			}
@@ -424,9 +435,8 @@ void gamewindow::command_Pressed(ClickCommand* command) {
 
 void gamewindow::on_Stop_clicked() {
 	scenemap->clear();
-	drawMap(map);
 	countStars = 0;
-	map.ReadFrom(":/map/map1.txt");
+	map.ReadFrom(pathToMap);
 	drawMap(map);
 	map.player = Player(map.player.getBeginRow(), map.player.getBeginColum(), map.player.getBeginRotation());
 	setPlayer(map.player);
@@ -434,6 +444,11 @@ void gamewindow::on_Stop_clicked() {
 
 void gamewindow::on_Play_clicked() {
 	callFunction(0);
+	if (countStars != 0) {
+		Dialog* window = new Dialog();
+		window->show();
+		connect(window, SIGNAL(button_pushed()), this, SLOT(on_Stop_clicked()));
+	}
 }
 
 void gamewindow::on_Restart_clicked() {

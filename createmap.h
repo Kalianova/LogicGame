@@ -38,7 +38,7 @@ private slots:
 	void color_Pressed(ClickColor*);
 	void image_Pressed(ClickCommand*);
 	void rectangle_Pressed(ClickFunction*);
-    void on_spinBox_valueChanged(int arg1);
+    void on_sizeOfMap_valueChanged(int arg1);
     void on_spinBoxFunction1_valueChanged(int arg1);
     void on_spinBoxFunction2_valueChanged(int arg1);
     void on_spinBoxFunction3_valueChanged(int arg1);

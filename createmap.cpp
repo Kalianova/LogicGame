@@ -1,5 +1,11 @@
 #include "createmap.h"
 #include "ui_createmap.h"
+#include <fstream>
+#include <QFile>
+#include <QDir>
+#include <QTextStream>
+#include <dialog.h>
+
 
 CreateMap::CreateMap(QWidget* parent) :
 	QMainWindow(parent),
@@ -132,6 +138,7 @@ void CreateMap::rectangle_Pressed(ClickFunction* function) {
 	if (clickcolor != nullptr) {
 		if (clickcolor->getColor() == Qt::gray) {
 			function->setColor(nullptr);
+			function->setCommand(nullptr);
 		}
 		else {
 			function->setColor(clickcolor);
@@ -154,7 +161,7 @@ void CreateMap::color_Pressed(ClickColor* color) {
 	}
 }
 
-void CreateMap::on_spinBox_valueChanged(int arg1) {
+void CreateMap::on_sizeOfMap_valueChanged(int arg1) {
 	sizeOfMap = arg1;
 	createmap->clear();
 	vectorfunctions.resize(0);
@@ -228,6 +235,147 @@ void CreateMap::on_cancel_clicked() {
 }
 
 void CreateMap::on_create_clicked() {
+	if (player == nullptr) {
+		Dialog* dialog = new Dialog("Choose place of player", "OK");
+		dialog->show();
+	}
+	else {
+		std::ofstream file;
+
+		QDir* dir;
+		
+		//QFile qfile(QString::fromStdString(dir->currentPath().toStdString().substr(0, dir->currentPath().toStdString().find_last_of('/'))) + "/map/map.txt");
+		QFile qfile(dir->currentPath() + "/map/map.txt");
+		qfile.open(QFile::WriteOnly | QFile::Text);
+		QTextStream writeStream(&qfile);
+		int sizeOfMap = ui->sizeOfMap->value();
+		writeStream << sizeOfMap << "\n";
+		int playerX{ 0 }, playerY{ 0 };
+		for (size_t i = 0; i < sizeOfMap; i++)
+		{
+			for (size_t j = 0; j < sizeOfMap; j++)
+			{
+				int index = 0;
+				if (vectorfunctions[j * sizeOfMap + i]->getCommand() != nullptr) {
+					index = vectorfunctions[j * sizeOfMap + i]->getCommand()->getNumberCommand();
+				}
+				if (index > 5) {
+					playerX = i;
+					playerY = j;
+					writeStream << vectorfunctions[j * sizeOfMap + i]->getFunction() - index;
+				}
+				else {
+					writeStream << vectorfunctions[j * sizeOfMap + i]->getFunction();
+				}
+			}
+			writeStream << "\n";
+		}
+		writeStream << playerX << " " << playerY << " " <<
+			(player->getCommand()->getIndex() - 6) * 90 << "\n";
+		QString commands;
+		QString functions;
+		QString colors;
+		int count = 0;
+		if (ui->arrow_up->isChecked()) {
+			commands += " 1";
+			count++;
+		}
+		if (ui->arrow_right->isChecked()) {
+			commands += " 2";
+			count++;
+		}
+		if (ui->arrow_left->isChecked()) {
+			commands += " 3";
+			count++;
+		}
+		if (ui->blue_brush->isChecked()) {
+			commands += " 4";
+			count++;
+		}
+		if (ui->dark_magenta_brush->isChecked()) {
+			commands += " 5";
+			count++;
+		}
+		if (ui->red_brush->isChecked()) {
+			commands += " 6";
+			count++;
+		}
+		if (ui->dark_yellow_brush->isChecked()) {
+			commands += " 7";
+			count++;
+		}
+		if (ui->function1->isChecked()) {
+			commands += " 8";
+			count++;
+		}
+		if (ui->function2->isChecked()) {
+			commands += " 9";
+			count++;
+		}
+		if (ui->function3->isChecked()) {
+			commands += " 10";
+			count++;
+		}
+		if (ui->function4->isChecked()) {
+			commands += " 11";
+			count++;
+		}
+		if (ui->function5->isChecked()) {
+			commands += " 12";
+			count++;
+		}
+		writeStream << count << "\n";
+		writeStream << commands.remove(0, 1) << "\n";
+		
+		count = 0;
+		if (ui->spinBoxFunction1->value() != 0) {
+			functions += " " + QString::number(ui->spinBoxFunction1->value()) + "1";
+			count++;
+		}
+		if (ui->spinBoxFunction2->value() != 0) {
+			functions += " " + QString::number(ui->spinBoxFunction2->value()) + "2";
+			count++;
+		}
+		if (ui->spinBoxFunction3->value() != 0) {
+			functions = " " + QString::number(ui->spinBoxFunction3->value()) + "3";
+			count++;
+		}
+		if (ui->spinBoxFunction4->value() != 0) {
+			functions += " " + QString::number(ui->spinBoxFunction4->value()) + "4";
+			count++;
+		}
+		if (ui->spinBoxFunction5->value() != 0) {
+			functions += " " + QString::number(ui->spinBoxFunction5->value()) + "5";
+			count++;
+		}
+		
+		writeStream << count << "\n";
+		writeStream << functions.remove(0, 1) << "\n";
+		
+		if (ui->blue->isChecked()) {
+			colors += " 1";
+		}
+		if (ui->dark_magenta->isChecked()) {
+			colors += " 2";
+		}
+		if (ui->red->isChecked()) {
+			colors += " 3";
+		}
+		if (ui->dark_yellow->isChecked()) {
+			colors += " 4";
+		}
+		writeStream << colors.length()/2 << "\n";
+		writeStream << colors.remove(0, 1);
+		
+		qfile.close();
+		rename("D:/LogicGame/cmake/map/map.txt", "D:/LogicGame/map/map.txt");
+	}
 	//проверка валидности
-	//изменение размера карты по краям
+	//изменение размера карты по краям - думаю без этого
+	//изи обойтись потому что 
+	//а что если в карте нет звезд
+	//указать путь к папке в которую карты будут сохраняться
+
+	//resize scenecommands чтобы они были по верхнему краю
+	//человек сам решает как хочет чтобы выглядела карта
 }

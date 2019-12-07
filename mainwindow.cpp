@@ -9,8 +9,9 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
-	this->setWindowTitle("Menu");
+
     ui->setupUi(this);
+	this->setWindowTitle("Menu");
 }
 
 MainWindow::~MainWindow() {

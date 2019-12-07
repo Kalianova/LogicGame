@@ -15,6 +15,7 @@ class Dialog : public QDialog
 
 public:
     explicit Dialog(QWidget *parent = nullptr);
+	explicit Dialog(QString, QString, QWidget* parent = nullptr);
 	void setWindow(QString, QString);
     ~Dialog();
 signals:
