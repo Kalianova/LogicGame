@@ -456,23 +456,32 @@ void gamewindow::keyPressEvent(QKeyEvent* event)
 	int row = clickFunctionNow->getRow();
 	if (key == Qt::Key_W || key == 1062 || key == Qt::Key_Up) {
 		if (row == 0) {
-			if (vectorFunction[row].size() > colum - SIZE_OF_FUNCTIONS) {
-				function_Pressed(vectorFunction[row][colum - SIZE_OF_FUNCTIONS]);
-			}
-		}
-		else {
-			if (vectorFunction[row].size() > colum - SIZE_OF_FUNCTIONS) {
+			if (0 <= colum - SIZE_OF_FUNCTIONS) {
 				function_Pressed(vectorFunction[row][colum - SIZE_OF_FUNCTIONS]);
 			}
 			else {
-				function_Pressed(vectorFunction[clickFunctionNow->getRow() - 1][clickFunctionNow->getColum()]);
+				function_Pressed(vectorFunction[vectorFunction.size() - 1][colum % SIZE_OF_FUNCTIONS + SIZE_OF_FUNCTIONS * ((vectorFunction[vectorFunction.size() - 1].size() - colum % SIZE_OF_FUNCTIONS - 1)
+					/ SIZE_OF_FUNCTIONS)]);
+			}
+		}
+		else {
+			if (0 <= colum - SIZE_OF_FUNCTIONS) {
+				function_Pressed(vectorFunction[row][colum - SIZE_OF_FUNCTIONS]);
+			}
+			else {
+				function_Pressed(vectorFunction[row - 1]
+					[colum % SIZE_OF_FUNCTIONS + SIZE_OF_FUNCTIONS * ((vectorFunction[row - 1].size()- colum % SIZE_OF_FUNCTIONS - 1)
+						/ SIZE_OF_FUNCTIONS)]);
 			}
 		}
 	}
 	else if(key == Qt::Key_S || key == 1067 || key == Qt::Key_Down){
-		if (row + 1 == vectorFunction.size()) {
+		if (row + 1 == vectorFunction.size() && vectorFunction[row].size() <= colum + SIZE_OF_FUNCTIONS) {
 			if (vectorFunction[row].size() > colum + SIZE_OF_FUNCTIONS) {
 				function_Pressed(vectorFunction[row][colum + SIZE_OF_FUNCTIONS]);
+			}
+			else {
+				function_Pressed(vectorFunction[0][colum % SIZE_OF_FUNCTIONS]);
 			}
 		}
 		else {
@@ -480,13 +489,13 @@ void gamewindow::keyPressEvent(QKeyEvent* event)
 				function_Pressed(vectorFunction[row][colum + SIZE_OF_FUNCTIONS]);
 			}
 			else {
-				function_Pressed(vectorFunction[row + 1][colum]);
+				function_Pressed(vectorFunction[row + 1][colum % SIZE_OF_FUNCTIONS]);
 			}
 		}
 	}
 	else if (key == Qt::Key_D || key == 1042 || key == Qt::Key_Right) {
 		if (colum + 1== vectorFunction[vectorFunction.size()-1].size() && row + 1== vectorFunction.size()) {
-
+			function_Pressed(vectorFunction[0][0]);
 		}
 		else {
 			if (colum + 1 == vectorFunction[clickFunctionNow->getRow()].size()) {
@@ -499,7 +508,7 @@ void gamewindow::keyPressEvent(QKeyEvent* event)
 	}
 	else if (key == Qt::Key_A || key == 1060 || key == Qt::Key_Left) {
 		if (colum == 0 && row == 0) {
-		
+			function_Pressed(vectorFunction[vectorFunction.size() - 1][vectorFunction[vectorFunction.size()-1].size()-1]);
 		}
 		else {
 			if (colum == 0) {
@@ -509,7 +518,6 @@ void gamewindow::keyPressEvent(QKeyEvent* event)
 			else {
 				function_Pressed(vectorFunction[row][colum - 1]);
 			}
-	
 		}
 	}
 	clickFunctionNow->changePress();
