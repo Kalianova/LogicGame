@@ -1,4 +1,4 @@
-#ifndef ClickCommand_H
+﻿#ifndef ClickCommand_H
 #define ClickCommand_H
 
 #include<QGraphicsSceneMouseEvent>

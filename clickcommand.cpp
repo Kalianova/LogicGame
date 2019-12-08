@@ -1,4 +1,4 @@
-#include "clickcommand.h"
+﻿#include "clickcommand.h"
 
 
 ClickColor::ClickColor(QColor Color, double Size, int Index)

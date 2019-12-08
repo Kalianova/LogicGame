@@ -1,4 +1,4 @@
-#ifndef GLOBALS_H
+﻿#ifndef GLOBALS_H
 #define GLOBALS_H
 
 #include <exception>
@@ -10,7 +10,7 @@
 #include <QDir>
 
 const static int SIZE_OF_MAP = 1000;
-const static int SIZE_OF_FUNCTIONS = 6;
+const static int SIZE_OF_FUNCTIONS = 10;
 
 
 class globals

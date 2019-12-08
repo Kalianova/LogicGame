@@ -1,4 +1,4 @@
-#ifndef CREATEMAP_H
+﻿#ifndef CREATEMAP_H
 #define CREATEMAP_H
 
 #include <QMainWindow>

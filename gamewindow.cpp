@@ -1,8 +1,11 @@
-#include "gamewindow.h"
+﻿#include "gamewindow.h"
 #include "ui_gamewindow.h"
 #include <QPixmap>
 #include <QKeyEvent>
+#include<QMessageBox>
 
+
+#define RUS( str ) codec->toUnicode(str)
 
 gamewindow::gamewindow(QWidget* parent) :
 	QMainWindow(parent),
@@ -10,12 +13,13 @@ gamewindow::gamewindow(QWidget* parent) :
 	ui(new Ui::gamewindow)
 {
 	QDir* dir;
+	
 	//pathToMap = (dir->currentPath() + "/map/map1.txt");
 	pathToMap = ":/map/map1.txt";
 	ui->setupUi(this);
 	this->setWindowTitle("Game");
 	this->resize(1000, 585);
-	
+
 	scenemap = new QGraphicsScene();
 	scenecommands = new QGraphicsScene();
 
@@ -29,6 +33,8 @@ gamewindow::gamewindow(QWidget* parent) :
 
 	ui->graphicsView->setScene(scenemap);
 	ui->commands->setScene(scenecommands);
+	QTextCodec* codec = QTextCodec::codecForName("Windows-1251");
+	//QMessageBox::information(this, RUS("Ошибка чтения"), RUS("Продолжить"));
 }
 
 gamewindow::~gamewindow() {
@@ -76,6 +82,13 @@ void gamewindow::setPlayer(Player player) {
 }
 
 void gamewindow::setSceneCommands() {
+	if (ui->commands->height() - 4 > (this->ui->commands->width() - 4) / (SIZE_OF_FUNCTIONS + 3) * (count + map.getFunctionsCount()) + 7) {
+		scenecommands->setSceneRect(0, 0, ui->commands->width() - 4, ui->commands->height() - 4);
+	}
+	else {
+		scenecommands->setSceneRect(0, 0, ui->commands->width() - 4, (this->ui->commands->width() - 4) / (SIZE_OF_FUNCTIONS + 3) * (count + map.getFunctionsCount()) + 7);
+	}
+	double size = (this->ui->commands->width() - 4) / (SIZE_OF_FUNCTIONS + 3);
 	move = true;
 	vectorFunction.resize(map.getFunctionsCount());
 	vectorNameFunction.resize(0);
@@ -84,7 +97,6 @@ void gamewindow::setSceneCommands() {
 		setFunc(i + count, map.getFunction(i), i);
 		count += map.getFunction(i)/10 / (SIZE_OF_FUNCTIONS + 1);
 	}
-	scenecommands->setSceneRect(0, 0, ui->commands->width() - 4, ui->commands->height() -4/*(this->ui->commands->width() - 4) / (SIZE_OF_FUNCTIONS + 3) * (count + map.getFunctionsCount()) + 7*/);
 	if (vectorCommand.size() != map.getCommandsCount()) {
 		vectorFunction[0][0]->changePress();
 		clickFunctionNow = vectorFunction[0][0];
@@ -94,6 +106,21 @@ void gamewindow::setSceneCommands() {
 	}
 	for (int i = 0; i < map.getColorsCount(); i++) {
 		setColor(i);
+	}
+	
+	if (vectorColor.size() > map.getColorsCount()) {
+		vectorColor[map.getColorsCount()]->setSize(size);
+		vectorColor[map.getColorsCount()]->setPos(size * (SIZE_OF_FUNCTIONS + 3) - size / 2,
+			size / 2 + size * map.getColorsCount());
+		vectorColor[map.getColorsCount()]->update();
+	}
+	else {
+		clickcolor = new ClickColor(Qt::white, size, 1);
+		clickcolor->setPos(size * (SIZE_OF_FUNCTIONS + 3) - size / 2,
+			size / 2 + size * map.getColorsCount());
+		connect(clickcolor, SIGNAL(colorChanged(ClickColor*)), this, SLOT(color_Pressed(ClickColor*)));
+		scenecommands->addItem(clickcolor);
+		vectorColor.push_back(clickcolor);
 	}
 }
 
@@ -398,6 +425,9 @@ void gamewindow::function_Pressed(ClickFunction* pressedFunction) {
 	}
 	if (pressedFunction->getCommand() == nullptr) {
 		pressedFunction->setCommand(clickFunctionNow->getCommand());
+	}
+	if (pressedFunction->getColor() == nullptr) {
+		pressedFunction->setColor(clickFunctionNow->getColor());
 	}
 	clickFunctionNow = pressedFunction;
 }
