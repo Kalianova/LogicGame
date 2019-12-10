@@ -34,10 +34,11 @@ void Map::ReadFrom(QString Path){
     for(int i = 0; i<Size;i++){
       TileMap.push_back(stream.readLine().toStdString());
     }
+    if(TileMap.size()!=0){
     int row, colum, rotation;
     stream>>row>>colum>>rotation;
     if(ColorOfRect(row,colum)==Qt::black){
-        throw std::invalid_argument("Position of player beyond map");
+		valid = false;
     }
     player = Player(row, colum, rotation);
 	stream.readLine();
@@ -82,17 +83,22 @@ void Map::ReadFrom(QString Path){
 				Color = Qt::darkYellow;
 				break;
 			default:
-				throw std::invalid_argument("Wrong integer for color");
+				valid = false;
 			}
 			colors.push_back(Color);
 		}
 	}
 	stream.readLine();
+    }
+    else{
+        valid = false;
+    }
 	file.close();
 }
 
 QColor Map::ColorOfRect(int Height, int Width){
     std::string str = TileMap[Height];
+
     int num = str[Width] - '0';
     switch(num % 5){
     case 0:

@@ -1,4 +1,4 @@
-﻿#ifndef GLOBALS_H
+#ifndef GLOBALS_H
 #define GLOBALS_H
 
 #include <exception>
@@ -11,6 +11,7 @@
 
 const static int SIZE_OF_MAP = 1000;
 const static int SIZE_OF_FUNCTIONS = 10;
+const static int SIZE_OF_LEVELS = 10;
 
 
 class globals
@@ -18,10 +19,10 @@ class globals
 
 public:
     globals();
+    void setLevelDone(QString path);
+    QString goToLevel();
 private:
-    QString level;
-	//QDir* dir;
-	//QString path{ dir.currentPath() };
+
 };
 
 #endif // GLOBALS_H

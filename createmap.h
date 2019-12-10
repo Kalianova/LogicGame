@@ -1,10 +1,10 @@
-﻿#ifndef CREATEMAP_H
+#ifndef CREATEMAP_H
 #define CREATEMAP_H
 
 #include <QMainWindow>
 #include<QCheckBox>
 #include <QGraphicsScene>
-#include<clickcommand.h>
+#include<click.h>
 #include<vector>
 
 namespace Ui {
@@ -21,23 +21,24 @@ public:
 
 private:
     Ui::CreateMap *ui;
-	QGraphicsScene* createmap;
-	QWidget* parentWindow;
-	int sizeOfMap{ 10 };
-	void setCheckBoxColor(QColor, QCheckBox*);
-	void createScene();
-	void createColor(QColor,double, int);
-	void createImage(QString, double, int, int);
-	void createFunction(int, int, double);
-	ClickColor* clickcolor;
-	ClickCommand* clickcommand;
-	ClickFunction* clickfunction;
-	ClickFunction* player{ nullptr };
-	std::vector<ClickFunction*> vectorfunctions;
+    QGraphicsScene* createmap;
+    QWidget* parentWindow;
+    bool isUnique(QString);
+    void setCheckBoxColor(QColor, QCheckBox*);
+    void createScene();
+    void createColor(QColor,double, int);
+    void createImage(QString, double, int, int);
+    void createFunction(int, int, double);
+    int sizeOfMap{ 10 };
+    ClickColor* clickcolor;
+    ClickCommand* clickcommand;
+    ClickFunction* clickfunction;
+    ClickFunction* player{ nullptr };
+    std::vector<ClickFunction*> vectorfunctions;
 private slots:
-	void color_Pressed(ClickColor*);
-	void image_Pressed(ClickCommand*);
-	void rectangle_Pressed(ClickFunction*);
+    void color_Pressed(ClickColor*);
+    void image_Pressed(ClickCommand*);
+    void rectangle_Pressed(ClickFunction*);
     void on_sizeOfMap_valueChanged(int arg1);
     void on_spinBoxFunction1_valueChanged(int arg1);
     void on_spinBoxFunction2_valueChanged(int arg1);

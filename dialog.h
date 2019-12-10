@@ -1,4 +1,4 @@
-﻿#ifndef DIALOG_H
+#ifndef DIALOG_H
 #define DIALOG_H
 
 #include <QDialog>
@@ -15,11 +15,11 @@ class Dialog : public QDialog
 
 public:
     explicit Dialog(QWidget *parent = nullptr);
-	explicit Dialog(QString, QString, QWidget* parent = nullptr);
-	void setWindow(QString, QString);
+    explicit Dialog(QString, QString, QWidget* parent = nullptr);
+    void setWindow(QString, QString);
     ~Dialog();
 signals:
-	void button_pushed();
+    void button_pushed();
 private slots:
 
     void on_pushButton_clicked();

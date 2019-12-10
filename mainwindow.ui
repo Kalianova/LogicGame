@@ -23,32 +23,6 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
-    <item row="1" column="2">
-     <spacer name="horizontalSpacer_2">
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-      <property name="sizeHint" stdset="0">
-       <size>
-        <width>40</width>
-        <height>20</height>
-       </size>
-      </property>
-     </spacer>
-    </item>
-    <item row="0" column="1">
-     <spacer name="verticalSpacer">
-      <property name="orientation">
-       <enum>Qt::Vertical</enum>
-      </property>
-      <property name="sizeHint" stdset="0">
-       <size>
-        <width>20</width>
-        <height>40</height>
-       </size>
-      </property>
-     </spacer>
-    </item>
     <item row="1" column="0">
      <spacer name="horizontalSpacer">
       <property name="orientation">
@@ -93,7 +67,7 @@
          <enum>Qt::LeftToRight</enum>
         </property>
         <property name="text">
-         <string>Play</string>
+         <string>Играть</string>
         </property>
        </widget>
       </item>
@@ -114,12 +88,12 @@
          </font>
         </property>
         <property name="text">
-         <string>Create map</string>
+         <string>Создать уровень</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="DownloadMap">
+       <widget class="QPushButton" name="Levels">
         <property name="minimumSize">
          <size>
           <width>120</width>
@@ -135,7 +109,7 @@
          </font>
         </property>
         <property name="text">
-         <string>Levels</string>
+         <string>Уровни</string>
         </property>
        </widget>
       </item>
@@ -156,7 +130,7 @@
          </font>
         </property>
         <property name="text">
-         <string>Exit</string>
+         <string>Выйти</string>
         </property>
        </widget>
       </item>
@@ -164,6 +138,32 @@
     </item>
     <item row="2" column="1">
      <spacer name="verticalSpacer_2">
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>20</width>
+        <height>40</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+    <item row="1" column="2">
+     <spacer name="horizontalSpacer_2">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>40</width>
+        <height>20</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+    <item row="0" column="1">
+     <spacer name="verticalSpacer">
       <property name="orientation">
        <enum>Qt::Vertical</enum>
       </property>

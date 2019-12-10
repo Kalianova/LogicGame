@@ -16,8 +16,8 @@ find_package(Qt5 COMPONENTS Core Gui Widgets REQUIRED)
 
 set(SRC_FILES createmap.cpp createmap.h createmap.ui gamewindow.cpp gamewindow.h gamewindow.ui
 globals.cpp globals.h main.cpp mainwindow.cpp mainwindow.h mainwindow.ui
-map.h map.cpp clickcommand.cpp clickcommand.h player.cpp player.h dialog.cpp
-dialog.h dialog.ui resources.qrc)
+map.h map.cpp click.cpp click.h player.cpp player.h dialog.cpp
+dialog.h dialog.ui levels.h levels.cpp levels.ui resources.qrc)
 
 
 

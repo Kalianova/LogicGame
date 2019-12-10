@@ -1,4 +1,4 @@
-﻿#include "dialog.h"
+#include "dialog.h"
 #include "ui_dialog.h"
 
 Dialog::Dialog(QWidget *parent) :
@@ -6,22 +6,22 @@ Dialog::Dialog(QWidget *parent) :
     ui(new Ui::Dialog)
 {
     ui->setupUi(this);
- 
+
 
 }
 
 Dialog::Dialog(QString label, QString button, QWidget* parent) :
-	QDialog(parent),
-	ui(new Ui::Dialog)
+    QDialog(parent),
+    ui(new Ui::Dialog)
 {
-	ui->setupUi(this);
-	this->setWindow(label, button);
+    ui->setupUi(this);
+    this->setWindow(label, button);
 }
 
 void Dialog::setWindow(QString label, QString button)
 {
-	ui->label->setText(label);
-	ui->pushButton->setText(button);
+    ui->label->setText(label);
+    ui->pushButton->setText(button);
 }
 
 Dialog::~Dialog()
@@ -31,6 +31,6 @@ Dialog::~Dialog()
 
 void Dialog::on_pushButton_clicked()
 {
-	this->hide();
-	emit button_pushed();
+    this->hide();
+    emit button_pushed();
 }

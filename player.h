@@ -10,22 +10,22 @@ public:
     Player() = default;
     Player(int Row, int Colum, int Rotation);
     void setPosition(int Row, int Colum);
-	void setBeginPosition(int Row, int Colum);
+    void setBeginPosition(int Row, int Colum);
     int getRow(){
         return rowNow;
     }
     int getColum(){
         return columNow;
     }
-	int getRotation() {
-		return rotationNow;
-	}
-	int getBeginRow() {
-		return row_;
-	}
-	int getBeginColum() {
-		return colum_;
-	}
+    int getRotation() {
+        return rotationNow;
+    }
+    int getBeginRow() {
+        return row_;
+    }
+    int getBeginColum() {
+        return colum_;
+    }
     int getBeginRotation(){
         return rotation_;
     }

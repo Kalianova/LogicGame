@@ -51,7 +51,7 @@
     <property name="geometry">
      <rect>
       <x>850</x>
-      <y>530</y>
+      <y>520</y>
       <width>93</width>
       <height>28</height>
      </rect>
@@ -59,11 +59,11 @@
     <property name="font">
      <font>
       <family>Britannic Bold</family>
-      <pointsize>12</pointsize>
+      <pointsize>10</pointsize>
      </font>
     </property>
     <property name="text">
-     <string>Create</string>
+     <string>Создать</string>
     </property>
    </widget>
    <widget class="QLineEdit" name="name_level">
@@ -87,15 +87,14 @@
     </property>
     <property name="font">
      <font>
-      <family>Britannic Bold</family>
-      <pointsize>12</pointsize>
+      <pointsize>9</pointsize>
      </font>
     </property>
     <property name="layoutDirection">
      <enum>Qt::LeftToRight</enum>
     </property>
     <property name="text">
-     <string>Choose name</string>
+     <string>Выберите название:</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
@@ -566,7 +565,7 @@
    <widget class="QLabel" name="labelSizOfMap">
     <property name="geometry">
      <rect>
-      <x>100</x>
+      <x>90</x>
       <y>10</y>
       <width>231</width>
       <height>31</height>
@@ -579,7 +578,7 @@
      </font>
     </property>
     <property name="text">
-     <string>Choose size of map:</string>
+     <string>Выберите размер карты:</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
@@ -588,20 +587,14 @@
    <widget class="QPushButton" name="cancel">
     <property name="geometry">
      <rect>
-      <x>850</x>
-      <y>490</y>
-      <width>93</width>
+      <x>830</x>
+      <y>10</y>
+      <width>111</width>
       <height>28</height>
      </rect>
     </property>
-    <property name="font">
-     <font>
-      <family>Britannic Bold</family>
-      <pointsize>12</pointsize>
-     </font>
-    </property>
     <property name="text">
-     <string>Cancel</string>
+     <string>В главное меню</string>
     </property>
    </widget>
   </widget>

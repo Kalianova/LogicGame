@@ -1,4 +1,4 @@
-﻿#ifndef MAINWINDOW_H
+#ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
 #include <QMainWindow>
@@ -23,6 +23,8 @@ private slots:
     void on_Exit_clicked();
 
     void on_DevelopMap_clicked();
+
+	void on_Levels_clicked();
 
 private:
     Ui::MainWindow *ui;

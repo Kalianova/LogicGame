@@ -22,7 +22,9 @@ public:
     ~Map(){
 
     }
-
+    bool isValid(){
+        return valid;
+    }
     int getNumber(int Height, int Width);
     int getSize();
     int getFunctionsCount(){return functions.size();}
@@ -30,9 +32,9 @@ public:
     int getCommand(unsigned int num){return comands[num];}
     int getFunction(unsigned int num){return functions[num];}
     int getColorsCount(){return colors.size();}
-	void setColor(int row, int colum, std::string color) {
-		TileMap[row].replace(colum, 1, color);
-	}
+    void setColor(int row, int colum, std::string color) {
+        TileMap[row].replace(colum, 1, color);
+    }
     QColor getColor(unsigned int num){return colors[num];}
     void Draw();
     Player player;
@@ -43,6 +45,7 @@ private:
     std::vector<QColor> colors;
     std::vector<int> functions;
 
+    bool valid{ true };
     int countStars{0};
 };
 
