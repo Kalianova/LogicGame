@@ -29,10 +29,10 @@ gamewindow::gamewindow(QString path, QWidget* parent) :
     ui->LevelName->setText(QString::fromStdString(s.substr(s.find_last_of('/') + 1,s.find_last_of('.') - s.find_last_of('/') - 1)));
     ui->graphicsView->setScene(scenemap);
     ui->commands->setScene(scenecommands);
-    QTimer* timer = new QTimer();
-    timer->setInterval(2000);
-    timer->start();
-    connect(timer, SIGNAL(timeout()), this, SLOT(on_Restart_clicked()));
+
+    timer = new QTimer();
+    timer->setInterval(100);
+    connect(timer, SIGNAL(timeout()), this, SLOT(moveWithTime()));
 }
 
 gamewindow::~gamewindow() {
@@ -261,13 +261,12 @@ void gamewindow::drawMap(Map& map) {
 
 void gamewindow::deleteRect(int row, int colum) {
     double size = (this->ui->graphicsView->height() - 4) / map.getSize();
-    if (scenemap->itemAt(row * size + size / 2, colum * size + size / 2, QTransform()) != nullptr) {
-        delete scenemap->itemAt(row * size + size / 2, colum * size + size / 2, QTransform());
+    if (scenemap->itemAt(colum * size + size / 2, row * size + size / 2, QTransform()) != nullptr) {
+        delete scenemap->itemAt(colum * size + size / 2, row * size + size / 2, QTransform());
     }
 }
 
-void gamewindow::moveForward(int rowNow, int columNow, int row, int colum)
-{
+void gamewindow::moveForward(int rowNow, int columNow, int row, int colum) {
     double size = (this->ui->graphicsView->height() - 4) / map.getSize();
     if (row >= 0 && colum >= 0 && row < map.getSize() && colum < map.getSize()) {
         if (map.ColorOfRect(row, colum) != Qt::black){
@@ -280,15 +279,6 @@ void gamewindow::moveForward(int rowNow, int columNow, int row, int colum)
             if (map.getNumber(row, colum) >= 5) {
                 countStars--;
             }
-            int t = countStars;
-            if (countStars == 1) {
-                Dialog* window = new Dialog();
-                window->show();
-                globals().setLevelDone(pathToMap);
-                pathToMap = globals().goToLevel();
-                connect(window, SIGNAL(button_pushed()), this, SLOT(newLevel()));
-                move = false;
-            }
             return;
         }
         else {
@@ -299,91 +289,106 @@ void gamewindow::moveForward(int rowNow, int columNow, int row, int colum)
         move = false;
     }
 }
-void gamewindow::moveTurnRight(int row, int colum)
-{
+
+void gamewindow::moveTurnRight(int row, int colum) {
     deleteRect(row, colum);
     setRectangle(map.ColorOfRect(row, colum), row, colum, map.getSize());
     map.player.moveRight();
     setPlayer(map.player);
 }
 
-void gamewindow::moveTurnLeft(int row, int colum)
-{
+void gamewindow::moveTurnLeft(int row, int colum) {
     deleteRect(row, colum);
     setRectangle(map.ColorOfRect(row, colum), row, colum, map.getSize());
     map.player.moveLeft();
     setPlayer(map.player);
 }
 
-void gamewindow::paintRect(int row, int colum, QColor color)
-{
+void gamewindow::paintRect(int row, int colum, QColor color) {
     deleteRect(row, colum);
     setRectangle(color, row, colum, map.getSize());
     setPlayer(map.player);
 }
 
-void gamewindow::callFunction(int num)
-{
-    count++;
-    if (move && count < 500 && vectorFunction.size() != 0) {
-        for (ClickFunction* function : vectorFunction[num]) {
-            if (checkColor(function)) {
-                switch (function->getCommand()->getIndex()) {
-                case 0:
-                    break;
-                case 1:
-                    switch (map.player.getRotation()) {
+void gamewindow::moveWithTime() {
+    if (move == false) {
+        Dialog* window = new Dialog();
+        window->setWindow("Уровень не решен. Попробуйте еще раз.", "Попробовать");
+        window->show();
+        connect(window, SIGNAL(button_pushed()), this, SLOT(on_Stop_clicked()));
+        timer->stop();
+        clickable = true;
+    }
+    else {
+        if (countStars == 0) {
+            Dialog* window = new Dialog();
+            window->show();
+            globals().setLevelDone(pathToMap);
+            pathToMap = globals().goToLevel();
+            connect(window, SIGNAL(button_pushed()), this, SLOT(newLevel()));
+            timer->stop();
+        }
+        else {
+            if (commandNow == vectorFunction[functionNow].size()) {
+                timer->stop();
+            }
+            else {
+                ClickFunction* function = vectorFunction[functionNow][commandNow];
+                if (checkColor(function)) {
+                    switch (function->getCommand()->getIndex()) {
                     case 0:
-                        moveForward(map.player.getRow(), map.player.getColum(), map.player.getRow() - 1, map.player.getColum());
                         break;
-                    case 90:
-                        moveForward(map.player.getRow(), map.player.getColum(), map.player.getRow(), map.player.getColum() + 1);
+                    case 1:
+                        switch (map.player.getRotation()) {
+                        case 0:
+                            moveForward(map.player.getRow(), map.player.getColum(), map.player.getRow() - 1, map.player.getColum());
+                            break;
+                        case 90:
+                            moveForward(map.player.getRow(), map.player.getColum(), map.player.getRow(), map.player.getColum() + 1);
+                            break;
+                        case 180:
+                            moveForward(map.player.getRow(), map.player.getColum(), map.player.getRow() + 1, map.player.getColum());
+                            break;
+                        case 270:
+                            moveForward(map.player.getRow(), map.player.getColum(), map.player.getRow(), map.player.getColum() - 1);
+                            break;
+                        }
                         break;
-                    case 180:
-                        moveForward(map.player.getRow(), map.player.getColum(), map.player.getRow() + 1, map.player.getColum());
+                    case 2:
+                        moveTurnRight(map.player.getRow(), map.player.getColum());
                         break;
-                    case 270:
-                        moveForward(map.player.getRow(), map.player.getColum(), map.player.getRow(), map.player.getColum() - 1);
+                    case 3:
+                        moveTurnLeft(map.player.getRow(), map.player.getColum());
+                        break;
+                    case 4:
+                        map.setColor(map.player.getRow(), map.player.getColum(), "1");
+                        paintRect(map.player.getRow(), map.player.getColum(), Qt::blue);
+                        break;
+                    case 5:
+                        map.setColor(map.player.getRow(), map.player.getColum(), "2");
+                        paintRect(map.player.getRow(), map.player.getColum(), Qt::darkMagenta);
+                        break;
+                    case 6:
+                        map.setColor(map.player.getRow(), map.player.getColum(), "3");
+                        paintRect(map.player.getRow(), map.player.getColum(), Qt::red);
+                        break;
+                    case 7:
+                        map.setColor(map.player.getRow(), map.player.getColum(), "4");
+                        paintRect(map.player.getRow(), map.player.getColum(), Qt::darkYellow);
+                        break;
+                    default:
+                        functionNow = function->getCommand()->getIndex() % 8;
+                        commandNow = -1;
                         break;
                     }
-                    break;
-                case 2:
-                    moveTurnRight(map.player.getRow(), map.player.getColum());
-                    break;
-                case 3:
-                    moveTurnLeft(map.player.getRow(), map.player.getColum());
-                    break;
-                case 4:
-                    map.setColor(map.player.getRow(), map.player.getColum(), "1");
-                    paintRect(map.player.getRow(), map.player.getColum(), Qt::blue);
-                    break;
-                case 5:
-                    map.setColor(map.player.getRow(), map.player.getColum(), "2");
-                    paintRect(map.player.getRow(), map.player.getColum(), Qt::darkMagenta);
-                    break;
-                case 6:
-                    map.setColor(map.player.getRow(), map.player.getColum(), "3");
-                    paintRect(map.player.getRow(), map.player.getColum(), Qt::red);
-                    break;
-                case 7:
-                    map.setColor(map.player.getRow(), map.player.getColum(), "4");
-                    paintRect(map.player.getRow(), map.player.getColum(), Qt::darkYellow);
-                    break;
-                default:
-                    callFunction(function->getCommand()->getIndex() % 8);
-                    break;
                 }
-
-            }
-            if (count == 500) {
-                break;
+                commandNow++;
             }
         }
     }
 }
 
-bool gamewindow::checkColor(ClickFunction* function)
-{
+bool gamewindow::checkColor(ClickFunction* function) {
     if (function->getColor() == nullptr && function->getCommand() != nullptr) {
         return true;
     }
@@ -417,41 +422,69 @@ void gamewindow::resizeEvent(QResizeEvent* event) {
 }
 
 void gamewindow::color_Pressed(ClickColor* color) {
-    if (clickFunctionNow->getColor() != nullptr && clickFunctionNow->getColor() != color) {
-        clickFunctionNow->getColor()->changePress();
-    }
-    if (color->isPressed()) {
-        clickFunctionNow->setColor(nullptr);
+    if (clickable) {
+        if (clickFunctionNow->getColor() != nullptr && clickFunctionNow->getColor() != color) {
+            clickFunctionNow->getColor()->changePress();
+        }
+        if (color->isPressed()) {
+            clickFunctionNow->setColor(nullptr);
+        }
+        else {
+            if (color->getColor() == Qt::white) {
+                clickFunctionNow->changePress();
+                if (clickFunctionNow->getColor() != nullptr) {
+                    clickFunctionNow->getColor()->changePress();
+                }
+                clickFunctionNow->setCommand(nullptr);
+                clickFunctionNow->setColor(nullptr);
+                clickFunctionNow->changePress();
+                color->changePress();
+            }
+            else {
+                clickFunctionNow->setColor(color);
+            }
+        }
+        clickFunctionNow->update();
     }
     else {
-        clickFunctionNow->setColor(color);
+        color->changePress();
     }
-    clickFunctionNow->update();
 }
 
 void gamewindow::function_Pressed(ClickFunction* pressedFunction) {
-    clickFunctionNow->changePress();
-    
-    if (clickFunctionNow->getCommand() == nullptr) {
-        clickFunctionNow->setColor(nullptr);
+    if (clickable) {
+        clickFunctionNow->changePress();
+        if (clickFunctionNow->getCommand() == nullptr) {
+            clickFunctionNow->setColor(nullptr);
+        }
+        clickFunctionNow = pressedFunction;
     }
-    clickFunctionNow = pressedFunction;
+    else {
+        pressedFunction->changePress();
+    }
 }
 
 void gamewindow::command_Pressed(ClickCommand* command) {
-    if (clickFunctionNow->getCommand() != nullptr && clickFunctionNow->getCommand() != command) {
-        clickFunctionNow->getCommand()->changePress();
-    }
-    if (command->isPressed()) {
-        clickFunctionNow->setCommand(nullptr);
+    if (clickable) {
+        if (clickFunctionNow->getCommand() != nullptr && clickFunctionNow->getCommand() != command) {
+            clickFunctionNow->getCommand()->changePress();
+        }
+        if (command->isPressed()) {
+            clickFunctionNow->setCommand(nullptr);
+        }
+        else {
+            clickFunctionNow->setCommand(command);
+        }
+        clickFunctionNow->update();
     }
     else {
-        clickFunctionNow->setCommand(command);
+        command->changePress();
     }
-    clickFunctionNow->update();
 }
 
 void gamewindow::on_Stop_clicked() {
+    clickable = true;
+    timer->stop();
     scenemap->clear();
     countStars = 0;
     map.ReadFrom(pathToMap);
@@ -461,24 +494,10 @@ void gamewindow::on_Stop_clicked() {
 }
 
 void gamewindow::on_Play_clicked() {
-    if (countStars == 1) {
-        Dialog* window = new Dialog();
-        window->show();
-        globals().setLevelDone(pathToMap);
-        pathToMap = globals().goToLevel();
-        connect(window, SIGNAL(button_pushed()), this, SLOT(newLevel()));
-        move = false;
-    }
-    else {
-        callFunction(0);
-        if (countStars != 1) {
-            count = 0;
-            Dialog* window = new Dialog();
-            window->setWindow("Уровень не решен. Попробуйте еще раз.", "Попробовать");
-            window->show();
-            connect(window, SIGNAL(button_pushed()), this, SLOT(on_Stop_clicked()));
-        }
-    }
+    clickable = false;
+    functionNow = 0;
+    commandNow = 0;
+    timer->start();
 }
 
 void gamewindow::newLevel() {
@@ -495,6 +514,7 @@ void gamewindow::newLevel() {
 }
 
 void gamewindow::on_Restart_clicked() {
+    clickable = true;
     if (globals().goToLevel() != nullptr) {
         scenecommands->clear();
         vectorFunction.resize(0);
@@ -511,81 +531,82 @@ void gamewindow::on_Back_clicked() {
 }
 
 void gamewindow::keyPressEvent(QKeyEvent* event) {
-    QCoreApplication::processEvents();
-    int key = event->key();
-    int colum = clickFunctionNow->getColum();
-    int row = clickFunctionNow->getRow();
-    if (key == Qt::Key_W || key == 1062 || key == Qt::Key_Up) {
-        if (row == 0) {
-            if (0 <= colum - SIZE_OF_FUNCTIONS) {
-                function_Pressed(vectorFunction[row][colum - SIZE_OF_FUNCTIONS]);
-            }
-            else {
-                function_Pressed(vectorFunction[vectorFunction.size() - 1][colum % SIZE_OF_FUNCTIONS + SIZE_OF_FUNCTIONS * ((vectorFunction[vectorFunction.size() - 1].size() - colum % SIZE_OF_FUNCTIONS - 1)
-                    / SIZE_OF_FUNCTIONS)]);
-            }
-        }
-        else {
-            if (0 <= colum - SIZE_OF_FUNCTIONS) {
-                function_Pressed(vectorFunction[row][colum - SIZE_OF_FUNCTIONS]);
-            }
-            else {
-                function_Pressed(vectorFunction[row - 1]
-                    [colum % SIZE_OF_FUNCTIONS + SIZE_OF_FUNCTIONS * ((vectorFunction[row - 1].size() - colum % SIZE_OF_FUNCTIONS - 1)
+    if (clickable) {
+        QCoreApplication::processEvents();
+        int key = event->key();
+        int colum = clickFunctionNow->getColum();
+        int row = clickFunctionNow->getRow();
+        if (key == Qt::Key_W || key == 1062 || key == Qt::Key_Up) {
+            if (row == 0) {
+                if (0 <= colum - SIZE_OF_FUNCTIONS) {
+                    function_Pressed(vectorFunction[row][colum - SIZE_OF_FUNCTIONS]);
+                }
+                else {
+                    function_Pressed(vectorFunction[vectorFunction.size() - 1][colum % SIZE_OF_FUNCTIONS + SIZE_OF_FUNCTIONS * ((vectorFunction[vectorFunction.size() - 1].size() - colum % SIZE_OF_FUNCTIONS - 1)
                         / SIZE_OF_FUNCTIONS)]);
-            }
-        }
-        clickFunctionNow->changePress();
-    }
-    else if (key == Qt::Key_S || key == 1067 || key == Qt::Key_Down) {
-        if (row + 1 == vectorFunction.size() && vectorFunction[row].size() <= colum + SIZE_OF_FUNCTIONS) {
-            if (vectorFunction[row].size() > colum + SIZE_OF_FUNCTIONS) {
-                function_Pressed(vectorFunction[row][colum + SIZE_OF_FUNCTIONS]);
+                }
             }
             else {
-                function_Pressed(vectorFunction[0][colum % SIZE_OF_FUNCTIONS]);
+                if (0 <= colum - SIZE_OF_FUNCTIONS) {
+                    function_Pressed(vectorFunction[row][colum - SIZE_OF_FUNCTIONS]);
+                }
+                else {
+                    function_Pressed(vectorFunction[row - 1]
+                        [colum % SIZE_OF_FUNCTIONS + SIZE_OF_FUNCTIONS * ((vectorFunction[row - 1].size() - colum % SIZE_OF_FUNCTIONS - 1)
+                            / SIZE_OF_FUNCTIONS)]);
+                }
             }
+            clickFunctionNow->changePress();
         }
-        else {
-            if (vectorFunction[row].size() > colum + SIZE_OF_FUNCTIONS) {
-                function_Pressed(vectorFunction[row][colum + SIZE_OF_FUNCTIONS]);
+        else if (key == Qt::Key_S || key == 1067 || key == Qt::Key_Down) {
+            if (row + 1 == vectorFunction.size() && vectorFunction[row].size() <= colum + SIZE_OF_FUNCTIONS) {
+                if (vectorFunction[row].size() > colum + SIZE_OF_FUNCTIONS) {
+                    function_Pressed(vectorFunction[row][colum + SIZE_OF_FUNCTIONS]);
+                }
+                else {
+                    function_Pressed(vectorFunction[0][colum % SIZE_OF_FUNCTIONS]);
+                }
             }
             else {
-                function_Pressed(vectorFunction[row + 1][colum % SIZE_OF_FUNCTIONS]);
+                if (vectorFunction[row].size() > colum + SIZE_OF_FUNCTIONS) {
+                    function_Pressed(vectorFunction[row][colum + SIZE_OF_FUNCTIONS]);
+                }
+                else {
+                    function_Pressed(vectorFunction[row + 1][colum % SIZE_OF_FUNCTIONS]);
+                }
             }
+            clickFunctionNow->changePress();
         }
-        clickFunctionNow->changePress();
-    }
-    else if (key == Qt::Key_D || key == 1042 || key == Qt::Key_Right) {
-        if (colum + 1 == vectorFunction[vectorFunction.size() - 1].size() && row + 1 == vectorFunction.size()) {
-            function_Pressed(vectorFunction[0][0]);
-        }
-        else {
-            if (colum + 1 == vectorFunction[clickFunctionNow->getRow()].size()) {
-                function_Pressed(vectorFunction[row + 1][0]);
-            }
-            else {
-                function_Pressed(vectorFunction[row][colum + 1]);
-            }
-        }
-        clickFunctionNow->changePress();
-    }
-    else if (key == Qt::Key_A || key == 1060 || key == Qt::Key_Left) {
-        if (colum == 0 && row == 0) {
-            function_Pressed(vectorFunction[vectorFunction.size() - 1][vectorFunction[vectorFunction.size() - 1].size() - 1]);
-        }
-        else {
-            if (colum == 0) {
-                colum = vectorFunction[row - 1].size() - 1;
-                function_Pressed(vectorFunction[row - 1][colum]);
+        else if (key == Qt::Key_D || key == 1042 || key == Qt::Key_Right) {
+            if (colum + 1 == vectorFunction[vectorFunction.size() - 1].size() && row + 1 == vectorFunction.size()) {
+                function_Pressed(vectorFunction[0][0]);
             }
             else {
-                function_Pressed(vectorFunction[row][colum - 1]);
+                if (colum + 1 == vectorFunction[clickFunctionNow->getRow()].size()) {
+                    function_Pressed(vectorFunction[row + 1][0]);
+                }
+                else {
+                    function_Pressed(vectorFunction[row][colum + 1]);
+                }
             }
+            clickFunctionNow->changePress();
         }
-        clickFunctionNow->changePress();
+        else if (key == Qt::Key_A || key == 1060 || key == Qt::Key_Left) {
+            if (colum == 0 && row == 0) {
+                function_Pressed(vectorFunction[vectorFunction.size() - 1][vectorFunction[vectorFunction.size() - 1].size() - 1]);
+            }
+            else {
+                if (colum == 0) {
+                    colum = vectorFunction[row - 1].size() - 1;
+                    function_Pressed(vectorFunction[row - 1][colum]);
+                }
+                else {
+                    function_Pressed(vectorFunction[row][colum - 1]);
+                }
+            }
+            clickFunctionNow->changePress();
+        }
     }
-
 }
 
 void gamewindow::on_question_clicked()
