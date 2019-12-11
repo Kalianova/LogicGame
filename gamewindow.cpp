@@ -29,6 +29,10 @@ gamewindow::gamewindow(QString path, QWidget* parent) :
     ui->LevelName->setText(QString::fromStdString(s.substr(s.find_last_of('/') + 1,s.find_last_of('.') - s.find_last_of('/') - 1)));
     ui->graphicsView->setScene(scenemap);
     ui->commands->setScene(scenecommands);
+    QTimer* timer = new QTimer();
+    timer->setInterval(2000);
+    timer->start();
+    connect(timer, SIGNAL(timeout()), this, SLOT(on_Restart_clicked()));
 }
 
 gamewindow::~gamewindow() {
@@ -384,10 +388,6 @@ bool gamewindow::checkColor(ClickFunction* function)
         return true;
     }
     else {
-        bool k = function->getCommand() != nullptr;
-        k = function->getColor()->getColor() == map.ColorOfRect(map.player.getRow(), map.player.getColum());
-        QColor c = function->getColor()->getColor();
-        c = map.ColorOfRect(map.player.getRow(), map.player.getColum());
         return function->getCommand() != nullptr &&
             function->getColor()->getColor() == map.ColorOfRect(map.player.getRow(), map.player.getColum());
     }
@@ -434,12 +434,6 @@ void gamewindow::function_Pressed(ClickFunction* pressedFunction) {
     
     if (clickFunctionNow->getCommand() == nullptr) {
         clickFunctionNow->setColor(nullptr);
-    }
-    if (pressedFunction->getCommand() == nullptr) {
-        pressedFunction->setCommand(clickFunctionNow->getCommand());
-    }
-    if (pressedFunction->getColor() == nullptr) {
-        pressedFunction->setColor(clickFunctionNow->getColor());
     }
     clickFunctionNow = pressedFunction;
 }
