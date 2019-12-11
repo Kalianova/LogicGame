@@ -30,9 +30,11 @@ private:
     void createImage(QString, double, int, int);
     void createFunction(int, int, double);
     int sizeOfMap{ 10 };
+    void keyPressed(ClickFunction* before, ClickFunction* now);
     ClickColor* clickcolor;
     ClickCommand* clickcommand;
     ClickFunction* clickfunction;
+    ClickFunction* clickFunctionNow{ nullptr };
     ClickFunction* player{ nullptr };
     std::vector<ClickFunction*> vectorfunctions;
 private slots:
@@ -52,6 +54,9 @@ private slots:
     void on_function5_stateChanged(int arg1);
     void on_cancel_clicked();
     void on_create_clicked();
+    void on_howToCreate_clicked();
+protected:
+    void keyPressEvent(QKeyEvent* event);
 };
 
 #endif // CREATEMAP_H

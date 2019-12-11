@@ -6,8 +6,6 @@ Dialog::Dialog(QWidget *parent) :
     ui(new Ui::Dialog)
 {
     ui->setupUi(this);
-
-
 }
 
 Dialog::Dialog(QString label, QString button, QWidget* parent) :

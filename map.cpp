@@ -31,6 +31,9 @@ void Map::ReadFrom(QString Path){
 	stream >> Size;
 	stream.readLine();
 	TileMap.clear();
+	comands.clear();
+	functions.clear();
+	colors.clear();
     for(int i = 0; i<Size;i++){
       TileMap.push_back(stream.readLine().toStdString());
     }

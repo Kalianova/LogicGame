@@ -25,9 +25,8 @@ gamewindow::gamewindow(QString path, QWidget* parent) :
 
     scenemap->setBackgroundBrush(QBrush(Qt::black));
     map.ReadFrom(pathToMap);
-    ui->LevelName->setText(QString::fromStdString(pathToMap.toStdString().substr(pathToMap.toStdString().find_last_of('/') + 1,
-                                                                                 pathToMap.toStdString().find_last_of('.') - pathToMap.toStdString().find_last_of('/') - 1)));
-
+    std::string s = pathToMap.toStdString();
+    ui->LevelName->setText(QString::fromStdString(s.substr(s.find_last_of('/') + 1,s.find_last_of('.') - s.find_last_of('/') - 1)));
     ui->graphicsView->setScene(scenemap);
     ui->commands->setScene(scenecommands);
 }
@@ -102,7 +101,6 @@ void gamewindow::setSceneCommands() {
     for (int i = 0; i < map.getColorsCount(); i++) {
         setColor(i);
     }
-
     if (vectorColor.size() > map.getColorsCount()) {
         vectorColor[map.getColorsCount()]->setSize(size);
         vectorColor[map.getColorsCount()]->setPos(size * (SIZE_OF_FUNCTIONS + 3) - size / 2,
@@ -113,6 +111,9 @@ void gamewindow::setSceneCommands() {
         clickcolor = new ClickColor(Qt::white, size, 1);
         clickcolor->setPos(size * (SIZE_OF_FUNCTIONS + 3) - size / 2,
             size / 2 + size * map.getColorsCount());
+        QPixmap image;
+        image.load(":/image/eraser.png");
+        clickcolor->setImage(image);
         connect(clickcolor, SIGNAL(colorChanged(ClickColor*)), this, SLOT(color_Pressed(ClickColor*)));
         scenecommands->addItem(clickcolor);
         vectorColor.push_back(clickcolor);
@@ -265,7 +266,7 @@ void gamewindow::moveForward(int rowNow, int columNow, int row, int colum)
 {
     double size = (this->ui->graphicsView->height() - 4) / map.getSize();
     if (row >= 0 && colum >= 0 && row < map.getSize() && colum < map.getSize()) {
-        if (map.ColorOfRect(row, colum) != Qt::black) {
+        if (map.ColorOfRect(row, colum) != Qt::black){
             deleteRect(rowNow, columNow);
             setRectangle(map.ColorOfRect(rowNow, columNow), rowNow, columNow, map.getSize());
             deleteRect(row, colum);
@@ -276,7 +277,7 @@ void gamewindow::moveForward(int rowNow, int columNow, int row, int colum)
                 countStars--;
             }
             int t = countStars;
-            if (countStars == 0) {
+            if (countStars == 1) {
                 Dialog* window = new Dialog();
                 window->show();
                 globals().setLevelDone(pathToMap);
@@ -285,6 +286,9 @@ void gamewindow::moveForward(int rowNow, int columNow, int row, int colum)
                 move = false;
             }
             return;
+        }
+        else {
+            move = false;
         }
     }
     else {
@@ -365,6 +369,10 @@ void gamewindow::callFunction(int num)
                     callFunction(function->getCommand()->getIndex() % 8);
                     break;
                 }
+
+            }
+            if (count == 500) {
+                break;
             }
         }
     }
@@ -376,6 +384,10 @@ bool gamewindow::checkColor(ClickFunction* function)
         return true;
     }
     else {
+        bool k = function->getCommand() != nullptr;
+        k = function->getColor()->getColor() == map.ColorOfRect(map.player.getRow(), map.player.getColum());
+        QColor c = function->getColor()->getColor();
+        c = map.ColorOfRect(map.player.getRow(), map.player.getColum());
         return function->getCommand() != nullptr &&
             function->getColor()->getColor() == map.ColorOfRect(map.player.getRow(), map.player.getColum());
     }
@@ -394,8 +406,10 @@ void gamewindow::resizeEvent(QResizeEvent* event) {
 
     ui->graphicsView->setScene(scenemap);
     ui->commands->setScene(scenecommands);
+    countStars = 0;
     drawMap(map);
     setPlayer(map.player);
+
     for (QGraphicsRectItem* i : vectorNameFunction) {
         delete i;
     }
@@ -417,6 +431,7 @@ void gamewindow::color_Pressed(ClickColor* color) {
 
 void gamewindow::function_Pressed(ClickFunction* pressedFunction) {
     clickFunctionNow->changePress();
+    
     if (clickFunctionNow->getCommand() == nullptr) {
         clickFunctionNow->setColor(nullptr);
     }
@@ -452,47 +467,47 @@ void gamewindow::on_Stop_clicked() {
 }
 
 void gamewindow::on_Play_clicked() {
-    if(countStars == 0)
-    {
-            Dialog* window = new Dialog();
-            window->show();
-            globals().setLevelDone(pathToMap);
-            pathToMap = globals().goToLevel();
-            connect(window, SIGNAL(button_pushed()), this, SLOT(newLevel()));
-            move = false;
-    }
-    else{
-    callFunction(0);
-    if (countStars != 0) {
+    if (countStars == 1) {
         Dialog* window = new Dialog();
-        window->setWindow("Уровень не решен. Попробуйте еще раз.", "Попробовать");
         window->show();
-        connect(window, SIGNAL(button_pushed()), this, SLOT(on_Stop_clicked()));
+        globals().setLevelDone(pathToMap);
+        pathToMap = globals().goToLevel();
+        connect(window, SIGNAL(button_pushed()), this, SLOT(newLevel()));
+        move = false;
     }
+    else {
+        callFunction(0);
+        if (countStars != 1) {
+            count = 0;
+            Dialog* window = new Dialog();
+            window->setWindow("Уровень не решен. Попробуйте еще раз.", "Попробовать");
+            window->show();
+            connect(window, SIGNAL(button_pushed()), this, SLOT(on_Stop_clicked()));
+        }
     }
 }
 
-void gamewindow::newLevel(){
-
-    if(pathToMap == nullptr){
-          QMessageBox::information(this, "Уровни пройдены", "Выберите уровень в меню уровней");
+void gamewindow::newLevel() {
+    if (pathToMap == nullptr) {
+        QMessageBox::information(this, "Уровни пройдены", "Выберите уровень в меню уровней");
     }
-    else{
-         on_Restart_clicked();
-    map.ReadFrom(pathToMap);
+    else {
+        map.ReadFrom(pathToMap);
+        std::string s = pathToMap.toStdString();
+        ui->LevelName->setText(QString::fromStdString(s.substr(s.find_last_of('/') + 1, s.find_last_of('.') - s.find_last_of('/') - 1)));
+        on_Restart_clicked();
     }
-        on_Stop_clicked();
+    on_Stop_clicked();
 }
 
 void gamewindow::on_Restart_clicked() {
-    if(globals().goToLevel()!= nullptr){
-    scenecommands->clear();
-    vectorFunction.resize(0);
-    vectorColor.resize(0);
-    vectorCommand.resize(0);
-
-    setSceneCommands();
-    on_Stop_clicked();
+    if (globals().goToLevel() != nullptr) {
+        scenecommands->clear();
+        vectorFunction.resize(0);
+        vectorColor.resize(0);
+        vectorCommand.resize(0);
+        setSceneCommands();
+        on_Stop_clicked();
     }
 }
 
@@ -501,8 +516,7 @@ void gamewindow::on_Back_clicked() {
     this->close();
 }
 
-void gamewindow::keyPressEvent(QKeyEvent* event)
-{
+void gamewindow::keyPressEvent(QKeyEvent* event) {
     QCoreApplication::processEvents();
     int key = event->key();
     int colum = clickFunctionNow->getColum();
@@ -523,12 +537,13 @@ void gamewindow::keyPressEvent(QKeyEvent* event)
             }
             else {
                 function_Pressed(vectorFunction[row - 1]
-                    [colum % SIZE_OF_FUNCTIONS + SIZE_OF_FUNCTIONS * ((vectorFunction[row - 1].size()- colum % SIZE_OF_FUNCTIONS - 1)
+                    [colum % SIZE_OF_FUNCTIONS + SIZE_OF_FUNCTIONS * ((vectorFunction[row - 1].size() - colum % SIZE_OF_FUNCTIONS - 1)
                         / SIZE_OF_FUNCTIONS)]);
             }
         }
+        clickFunctionNow->changePress();
     }
-    else if(key == Qt::Key_S || key == 1067 || key == Qt::Key_Down){
+    else if (key == Qt::Key_S || key == 1067 || key == Qt::Key_Down) {
         if (row + 1 == vectorFunction.size() && vectorFunction[row].size() <= colum + SIZE_OF_FUNCTIONS) {
             if (vectorFunction[row].size() > colum + SIZE_OF_FUNCTIONS) {
                 function_Pressed(vectorFunction[row][colum + SIZE_OF_FUNCTIONS]);
@@ -545,9 +560,10 @@ void gamewindow::keyPressEvent(QKeyEvent* event)
                 function_Pressed(vectorFunction[row + 1][colum % SIZE_OF_FUNCTIONS]);
             }
         }
+        clickFunctionNow->changePress();
     }
     else if (key == Qt::Key_D || key == 1042 || key == Qt::Key_Right) {
-        if (colum + 1== vectorFunction[vectorFunction.size()-1].size() && row + 1== vectorFunction.size()) {
+        if (colum + 1 == vectorFunction[vectorFunction.size() - 1].size() && row + 1 == vectorFunction.size()) {
             function_Pressed(vectorFunction[0][0]);
         }
         else {
@@ -558,10 +574,11 @@ void gamewindow::keyPressEvent(QKeyEvent* event)
                 function_Pressed(vectorFunction[row][colum + 1]);
             }
         }
+        clickFunctionNow->changePress();
     }
     else if (key == Qt::Key_A || key == 1060 || key == Qt::Key_Left) {
         if (colum == 0 && row == 0) {
-            function_Pressed(vectorFunction[vectorFunction.size() - 1][vectorFunction[vectorFunction.size()-1].size()-1]);
+            function_Pressed(vectorFunction[vectorFunction.size() - 1][vectorFunction[vectorFunction.size() - 1].size() - 1]);
         }
         else {
             if (colum == 0) {
@@ -572,19 +589,20 @@ void gamewindow::keyPressEvent(QKeyEvent* event)
                 function_Pressed(vectorFunction[row][colum - 1]);
             }
         }
+        clickFunctionNow->changePress();
     }
-    clickFunctionNow->changePress();
+
 }
 
 void gamewindow::on_question_clicked()
 {
-              QMessageBox::information(this, "Как играть в эту игру?", "1) Чтобы пройти уровень нужно собрать все звезды, для этого нужно составить наборы команд для ракеты\n"
-                                                                       "2) Можно перемещаться вперед, поворачивать направо и налево, перекрашивать клетки новым цветом, вызывать другой набор команд (наборы команд обозначаются анимированными героями)\n"
-                                                                       "3) Команда, к которой будет добавлен цвет, будет выполняться только в том случае если ракета в тот момент будет находится на клетке такого же цвета\n"
-                                                                       "4) Для выбора цвета и команды выделенной клетки нужно нажать левой кнопкой мыши на их значения в правой части экрана, при перемещении на следующую пустую клетку она автоматически заполняется значениями из предыдущей"
-                                                                       "5) Если цвет или команда выбраны в данной клетке, то он отобразятся в ней и будут выделены темным контуром\n"
-                                                                       "6) Перемещаться по наборам команд можно либо нажатием левой кнопки мыши, либо с помощью стрелок или клавиш WASD\n"
+    QMessageBox::information(this, "Как играть в эту игру?", "1) Чтобы пройти уровень нужно собрать все звезды, для этого нужно составить наборы команд для ракеты\n"
+        "2) Можно перемещаться вперед, поворачивать направо и налево, перекрашивать клетки новым цветом, вызывать другой набор команд (наборы команд обозначаются анимированными героями)\n"
+        "3) Команда, к которой будет добавлен цвет, будет выполняться только в том случае если ракета в тот момент будет находится на клетке такого же цвета\n"
+        "4) Для выбора цвета и команды выделенной клетки нужно нажать левой кнопкой мыши на их значения в правой части экрана, при перемещении на следующую пустую клетку она автоматически заполняется значениями из предыдущей"
+        "5) Если цвет или команда выбраны в данной клетке, то он отобразятся в ней и будут выделены темным контуром\n"
+        "6) Перемещаться по наборам команд можно либо нажатием левой кнопки мыши, либо с помощью стрелок или клавиш WASD\n"
 
-                                                                       "7) Чтобы убрать из клетки цвет или команду, выберите клетку и нажмите по команде или цвету еще раз\n"
-                                                                       "8) Чтобы опробовать решение нажмите ");
+        "7) Чтобы убрать из клетки цвет или команду, выберите клетку и нажмите по команде или цвету еще раз\n"
+        "8) Чтобы опробовать решение нажмите ");
 }

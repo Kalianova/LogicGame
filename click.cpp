@@ -25,7 +25,7 @@ void ClickColor::paint(QPainter* painter, const QStyleOptionGraphicsItem* option
         painter->setPen(*pen);
     }
     painter->drawRect(-size / 2 + 2, -size / 2 + 2, size - 6, size - 6);
-
+    painter->drawPixmap(QRect(-size / 2 + 3, -size / 2 + 3, size - 6, size - 6), image);
     Q_UNUSED(option)
     Q_UNUSED(widget)
 }

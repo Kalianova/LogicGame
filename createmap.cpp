@@ -8,6 +8,7 @@
 #include <QTextCodec>
 #include <dialog.h>
 #include <globals.h>
+#include <QKeyEvent>
 
 
 CreateMap::CreateMap(QWidget* parent) :
@@ -34,18 +35,17 @@ CreateMap::~CreateMap() {
     delete ui;
 }
 
-bool CreateMap::isUnique(QString name)
-{
-    QFile qfile(QDir().currentPath()+"/map/config.txt");
+bool CreateMap::isUnique(QString name) {
+    QFile qfile(QDir().currentPath() + "/map/config.txt");
     qfile.open(QFile::ReadOnly | QFile::Text);
     std::string s;
-    while(!qfile.atEnd()){
+    while (!qfile.atEnd()) {
         QString str = qfile.readLine();
-        s = str.mid(0,s.size() - 3).toStdString();
+        s = str.mid(0, s.size() - 3).toStdString();
         str = QString::fromStdString(s.substr(s.find_last_of('/') + 1, s.find_last_of('.') - s.find_last_of('/') - 1));
-if(name == str){
-    return false;
-    }
+        if (name == str) {
+            return false;
+        }
     }
     qfile.close();
     return true;
@@ -60,21 +60,19 @@ void CreateMap::setCheckBoxColor(QColor color, QCheckBox* checkbox) {
 
 void CreateMap::createScene() {
     double size = (this->ui->graphicsView->height()) / 10;
-    double sizeOfRectMap = size*10/sizeOfMap;
+    double sizeOfRectMap = size * 10 / sizeOfMap;
     createColor(Qt::gray, size, 0);
     createColor(Qt::blue, size, 1);
     createColor(Qt::darkMagenta, size, 2);
     createColor(Qt::red, size, 3);
     createColor(Qt::darkYellow, size, 4);
-    createImage(":/image/star",size, 5, 0);
+    createImage(":/image/star", size, 5, 0);
     createImage(":/image/rocket", size, 6, 0);
     createImage(":/image/rocket", size, 7, 90);
     createImage(":/image/rocket", size, 8, 180);
     createImage(":/image/rocket", size, 9, 270);
-    for (size_t i = 0; i < sizeOfMap; i++)
-    {
-        for (size_t j = 0; j < sizeOfMap; j++)
-        {
+    for (size_t i = 0; i < sizeOfMap; i++) {
+        for (size_t j = 0; j < sizeOfMap; j++) {
             createFunction(i, j, sizeOfRectMap);
         }
     }
@@ -84,18 +82,17 @@ void CreateMap::createScene() {
 }
 
 void CreateMap::createColor(QColor color, double size, int count) {
-    clickcolor = new ClickColor(color,size,count);
+    clickcolor = new ClickColor(color, size, count);
     clickcolor->setPos(size * 10 + size / 2,
         size / 2 + size * count);
     connect(clickcolor, SIGNAL(colorChanged(ClickColor*)), this, SLOT(color_Pressed(ClickColor*)));
     createmap->addItem(clickcolor);
 }
 
-void CreateMap::createImage(QString path, double size, int count, int rotation )
-{
+void CreateMap::createImage(QString path, double size, int count, int rotation) {
     QPixmap image;
     image.load(path);
-    clickcommand = new ClickCommand(image,size,count);
+    clickcommand = new ClickCommand(image, size, count);
     clickcommand->setPos(size * 10 + size / 2,
         size / 2 + size * count);
     clickcommand->setRotation(rotation);
@@ -103,13 +100,27 @@ void CreateMap::createImage(QString path, double size, int count, int rotation )
     createmap->addItem(clickcommand);
 }
 
-void CreateMap::createFunction(int row, int colum, double size)
-{
-    clickfunction = new ClickFunction(size, 0 ,0);
-    clickfunction->setPos(size * row + size/2 - 2 , size * colum + size/2 - 2);
+void CreateMap::createFunction(int row, int colum, double size) {
+    clickfunction = new ClickFunction(size, row, colum);
+    clickfunction->setPos(size * row + size / 2 - 2, size * colum + size / 2 - 2);
     createmap->addItem(clickfunction);
     connect(clickfunction, SIGNAL(rectangleChanged(ClickFunction*)), this, SLOT(rectangle_Pressed(ClickFunction*)));
     vectorfunctions.push_back(clickfunction);
+}
+
+void CreateMap::keyPressed(ClickFunction* before, ClickFunction* now) {
+    if (!now->isPressed()) {
+        if (before->getColor() != nullptr) {
+            now->setColor(before->getColor());
+            now->getColor()->changePress();
+        }
+        if (before->getCommand() != nullptr) {
+            now->setCommand(before->getCommand());
+            now->getCommand()->changePress();
+        }
+        now->changePress();
+    }
+    clickFunctionNow = now;
 }
 
 void CreateMap::image_Pressed(ClickCommand* command) {
@@ -121,6 +132,10 @@ void CreateMap::image_Pressed(ClickCommand* command) {
         clickcolor->changePress();
         clickcolor = nullptr;
     }
+    if (clickFunctionNow != nullptr) {
+        clickFunctionNow->setCommand(command);
+    }
+    clickFunctionNow->update();
 }
 
 void CreateMap::rectangle_Pressed(ClickFunction* function) {
@@ -154,21 +169,23 @@ void CreateMap::rectangle_Pressed(ClickFunction* function) {
         else {
             function->changePress();
         }
+        clickFunctionNow = function;
     }
     if (clickcolor != nullptr) {
         if (clickcolor->getColor() == Qt::gray) {
             function->setColor(nullptr);
             function->setCommand(nullptr);
+            clickFunctionNow = nullptr;
         }
         else {
             function->setColor(clickcolor);
+            clickFunctionNow = function;
         }
     }
     if (function->getColor() == nullptr && clickcommand == nullptr) {
         function->changePress();
     }
-    function->update();
-}
+    function->update();}
 
 void CreateMap::color_Pressed(ClickColor* color) {
     if (clickcolor != nullptr) {
@@ -178,6 +195,10 @@ void CreateMap::color_Pressed(ClickColor* color) {
     if (clickcommand != nullptr) {
         clickcommand->changePress();
         clickcommand = nullptr;
+    }
+    if (clickFunctionNow != nullptr) {
+        clickFunctionNow->setColor(color);
+        clickFunctionNow->update();
     }
 }
 
@@ -261,7 +282,7 @@ void CreateMap::on_create_clicked() {
     else if (ui->name_level->text() == NULL) {
         QMessageBox::information(this, "Название отсутствует", "Выберите название уровня");
     }
-    else if (!isUnique(ui->name_level->text()))	{
+    else if (!isUnique(ui->name_level->text())) {
         QMessageBox::information(this, "Неверное название", "Такое название уже используется. Выберите другое название уровня.");
     }
     else {
@@ -269,11 +290,11 @@ void CreateMap::on_create_clicked() {
         QDir* dir;
         QDir().mkdir("map");
 
-        QFile qconfig(dir->currentPath()+"/map/config.txt");
+        QFile qconfig(dir->currentPath() + "/map/config.txt");
         qconfig.open(QFile::WriteOnly | QFile::Append);
         QTextStream writeStreamConfig(&qconfig);
         writeStreamConfig.setCodec(QTextCodec::codecForName("UTF-8"));
-        writeStreamConfig << dir->currentPath() << "/map/" << ui->name_level->text() << ".txt 0"<< "\r\n" ;
+        writeStreamConfig << dir->currentPath() << "/map/" << ui->name_level->text() << ".txt 0" << "\r\n";
         qconfig.close();
         QFile qfile(dir->currentPath() + "/map/" + ui->name_level->text() + ".txt");
         qfile.open(QFile::WriteOnly | QFile::Text);
@@ -281,10 +302,8 @@ void CreateMap::on_create_clicked() {
         int sizeOfMap = ui->sizeOfMap->value();
         writeStream << sizeOfMap << "\n";
         int playerX{ 0 }, playerY{ 0 };
-        for (size_t i = 0; i < sizeOfMap; i++)
-        {
-            for (size_t j = 0; j < sizeOfMap; j++)
-            {
+        for (size_t i = 0; i < sizeOfMap; i++) {
+            for (size_t j = 0; j < sizeOfMap; j++) {
                 int index = 0;
                 if (vectorfunctions[j * sizeOfMap + i]->getCommand() != nullptr) {
                     index = vectorfunctions[j * sizeOfMap + i]->getCommand()->getNumberCommand();
@@ -398,12 +417,46 @@ void CreateMap::on_create_clicked() {
         writeStream << colors.remove(0, 1);
         QString s = dir->currentPath() + "/" + ui->name_level->text() + ".txt";
         qfile.close();
-        QMessageBox::information(this, "\"" +  ui->name_level->text() +"\" добавлен", "Чтобы пройти созданный уровень выберите его в меню уровней");
+        QMessageBox::information(this, "\"" + ui->name_level->text() + "\" добавлен", "Чтобы пройти созданный уровень выберите его в меню уровней");
         player = nullptr;
         createmap->clear();
         createScene();
-        /*rename((dir->currentPath() + "/map/map.txt").toStdString().c_str(),
-            (dir->currentPath() + "/map/" + ui->name_level->text() + ".txt").toStdString().c_str());
-    */
     }
 }
+
+void CreateMap::on_howToCreate_clicked()
+{
+    QMessageBox::information(this, "Как создать уровень", "Выберите...");
+}
+
+void CreateMap::keyPressEvent(QKeyEvent* event) {
+    QCoreApplication::processEvents();
+    int key = event->key();
+    int colum = clickFunctionNow->getColum();
+    int row = clickFunctionNow->getRow();
+    if (key == Qt::Key_W || key == 1062 || key == Qt::Key_Up) {
+        if (row > 0) {
+            keyPressed(clickFunctionNow, vectorfunctions[row * ui->sizeOfMap->value() + colum - 1]);
+        }
+    }
+    else if (key == Qt::Key_S || key == 1067 || key == Qt::Key_Down) {
+        if (colum < ui->sizeOfMap->value() - 1) {
+            keyPressed(clickFunctionNow, vectorfunctions[row * ui->sizeOfMap->value() + colum + 1]);
+        }
+    }
+    else if (key == Qt::Key_D || key == 1042 || key == Qt::Key_Right) {
+        if (colum < ui->sizeOfMap->value() - 1) {
+            keyPressed(clickFunctionNow, vectorfunctions[(row + 1) * ui->sizeOfMap->value() + colum]);
+        }
+    }
+    else if (key == Qt::Key_A || key == 1060 || key == Qt::Key_Left) {
+        if (colum > 0) {
+            keyPressed(clickFunctionNow, vectorfunctions[(row - 1) * ui->sizeOfMap->value() + colum]);
+        }
+    }
+
+}
+//проверка на то что корабля больше нет
+//подсвечивание того что нажато
+//убрать звезды нажатием
+//выделение места где находишься убрать оконтовку

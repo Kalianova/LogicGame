@@ -1,4 +1,4 @@
-﻿#include "levels.h"
+#include "levels.h"
 #include "ui_levels.h"
 #include "map.h"
 #include "gamewindow.h"
@@ -110,7 +110,7 @@ void levels::addLevel(QString path){
 
 void levels::openLevel(QString path)
 {
-    gamewindow* window = new gamewindow(path, this);
+    gamewindow* window = new gamewindow(path, parentWindow);
 	window->show();
 	this->setVisible(false);
 }

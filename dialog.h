@@ -3,7 +3,6 @@
 
 #include <QDialog>
 
-//#include <QString>
 
 namespace Ui {
 class Dialog;

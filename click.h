@@ -17,6 +17,7 @@ public:
     bool isPressed() { return pressed; }
     QColor getColor() { return color; }
     void setSize(double Size) { size = Size; }
+    void setImage(QPixmap Image) { image = Image; }
     ~ClickColor() {}
 signals:
     void colorChanged(ClickColor*);
@@ -29,6 +30,7 @@ private:
     double size;
     int index;
 	bool pressed{ false };
+    QPixmap image;
     QPen* pen;
 };
 
