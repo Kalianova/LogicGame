@@ -31,7 +31,7 @@ gamewindow::gamewindow(QString path, QWidget* parent) :
     ui->commands->setScene(scenecommands);
 
     timer = new QTimer();
-    timer->setInterval(500);
+    timer->setInterval(170);
     connect(timer, SIGNAL(timeout()), this, SLOT(moveWithTime()));
 }
 
@@ -196,6 +196,14 @@ void gamewindow::setCommand(int num) {
 void gamewindow::setFunc(int count, int countRect, int functionNumber) {
     double size = (this->ui->commands->width() - 4) / (SIZE_OF_FUNCTIONS + 1);
     double sizeCommands = (this->ui->commands->width() - 4) / SIZE_OF_COMMANDS;
+
+    /* Для изменения иконки
+    
+    QGraphicsTextItem* text = new QGraphicsTextItem(QString::fromStdString(s.substr(s.find_last_of('/') + 1, s.find_last_of('.') - s.find_last_of('/') - 1)));
+    text->setPos(i % SIZE_OF_LEVELS * size + 4, i / SIZE_OF_LEVELS * size + 7);
+    text->setTextWidth(size - 2);
+    scene->addItem(clickcolor);
+    scene->addItem(text);*/
     QPixmap image;
     image.load(":/image/function" + QString::number(countRect%10));
     image = image.scaled(size - 4, size - 4);
@@ -210,6 +218,8 @@ void gamewindow::setFunc(int count, int countRect, int functionNumber) {
 
     pix->setPos(2, sizeCommands * 2.4 + size* count + 2 + functionNumber*0.2*size);
     pix->setParentItem(rect);
+
+
 
     scenecommands->addItem(rect);
     vectorNameFunction.push_back(rect);
@@ -316,47 +326,31 @@ void gamewindow::paintRect(int row, int colum, QColor color) {
 
 void gamewindow::moveWithTime() {
     if (move == false) {
-        Dialog* window = new Dialog();
-        window->setWindow("Уровень не решен. Попробуйте еще раз.", "Попробовать");
-        window->show();
-        connect(window, SIGNAL(button_pushed()), this, SLOT(on_Stop_clicked()));
+        int k = QMessageBox::information(this, "Уровень не решен", "Попробуйте еще раз", "OK");
+        on_Stop_clicked();
         timer->stop();
         clickable = true;
         move = true;
     }
     else {
         if (countStars == 0) {
-            Dialog* window = new Dialog();
-            window->show();
+            int k = QMessageBox::question(this, "Уровень решен", "Поздравляю",  "Остаться на этом", "Следующий уровень", 0,1);
             globals().setLevelDone(pathToMap);
             pathToMap = globals().goToLevel();
-            connect(window, SIGNAL(button_pushed()), this, SLOT(newLevel()));
+            if (k) {
+                newLevel();
+            }
             timer->stop();
             move = true;
         }
         else {
             if (commandNow == vectorFunction[functionNow].size()) {
-                timer->stop();
-                clickable = true;
+                move = false;
             }
             else {
-                clickFunctionNow->changePress();
-                if (clickFunctionNow->getCommand() != nullptr) {
-                    clickFunctionNow->getCommand()->changePress();
-                }
-                if (clickFunctionNow->getColor() != nullptr) {
-                    clickFunctionNow->getColor()->changePress();
-                }
-               
+                clickFunctionNow->changePressFunction();               
                 ClickFunction* function = vectorFunction[functionNow][commandNow];
-                function->changePress();
-                if (function->getCommand() != nullptr) {
-                    function->getCommand()->changePress();
-                }
-                if (function->getColor() != nullptr) {
-                    function->getColor()->changePress();
-                }
-              
+                function->changePressFunction();
                 clickFunctionNow = function;
                 if (checkColor(function)) {
                     switch (function->getCommand()->getIndex()) {
@@ -507,12 +501,7 @@ void gamewindow::command_Pressed(ClickCommand* command) {
 }
 
 void gamewindow::on_Stop_clicked() {
-    if (clickFunctionNow->getCommand() != nullptr) {
-        clickFunctionNow->getCommand()->changePress();
-    }
-    if (clickFunctionNow->getColor() != nullptr) {
-        clickFunctionNow->getColor()->changePress();
-    }
+    clickFunctionNow->changePressCommand();
     clickable = true;
     timer->stop();
     scenemap->clear();
@@ -524,12 +513,7 @@ void gamewindow::on_Stop_clicked() {
 }
 
 void gamewindow::on_Play_clicked() {
-    if (clickFunctionNow->getCommand() != nullptr) {
-        clickFunctionNow->getCommand()->changePress();
-    }
-    if (clickFunctionNow->getColor() != nullptr) {
-        clickFunctionNow->getColor()->changePress();
-    }
+    clickFunctionNow->changePressCommand();
     clickable = false;
     functionNow = 0;
     commandNow = 0;

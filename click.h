@@ -68,6 +68,8 @@ class ClickFunction : public QObject, public QGraphicsItem
 public:
     ClickFunction(double, int, int);
     void changePress();
+    void changePressFunction();
+    void changePressCommand();
     bool isPressed() { return pressed; }
     ClickColor* getColor() { return clickcolor; }
     ClickCommand* getCommand() { return clickcommand; }

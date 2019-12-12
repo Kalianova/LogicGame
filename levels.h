@@ -30,14 +30,16 @@ public:
 private slots:
 
     void color_Pressed(ClickColor*);
-    void on_add_clicked();
 
     void on_exit_clicked();
 
-    void on_begin_clicked();
+    void on_beginLevel_clicked();
 
+    void on_create_clicked();
 
-    void on_delete_2_clicked();
+    void on_download_clicked();
+
+    void on_deleteLevel_clicked();
 
 private:
     Ui::levels *ui;
@@ -46,8 +48,6 @@ private:
     ClickColor* clickcolor{nullptr};
     void readLevels();
 	void drawLevels();
-	void addLevel(QString);
-	void deleteLevel();
     void openLevel(QString);
 };
 

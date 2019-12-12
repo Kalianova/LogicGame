@@ -93,6 +93,20 @@ void ClickFunction::changePress()
     update();
 }
 
+void ClickFunction::changePressFunction() {
+    pressed = !pressed;
+    update();
+}
+void ClickFunction::changePressCommand() {
+    if (clickcolor != nullptr) {
+        clickcolor->changePress();
+    }
+    if (clickcommand != nullptr) {
+        clickcommand->changePress();
+    }
+    update();
+}
+
 QRectF ClickFunction::boundingRect() const
 {
     return QRectF(-size / 2 , -size / 2 , size , size );

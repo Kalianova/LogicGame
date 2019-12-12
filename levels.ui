@@ -17,22 +17,36 @@
    <widget class="QWidget" name="horizontalLayoutWidget">
     <property name="geometry">
      <rect>
-      <x>420</x>
+      <x>210</x>
       <y>10</y>
-      <width>346</width>
+      <width>573</width>
       <height>51</height>
      </rect>
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="QPushButton" name="begin">
+      <widget class="QPushButton" name="download">
+       <property name="text">
+        <string>Загрузить уровень</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="create">
+       <property name="text">
+        <string>Создать уровень</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="beginLevel">
        <property name="text">
         <string>Начать уровень</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="delete_2">
+      <widget class="QPushButton" name="deleteLevel">
        <property name="text">
         <string>Удалить уровень</string>
        </property>
@@ -52,8 +66,8 @@
      <rect>
       <x>20</x>
       <y>60</y>
-      <width>751</width>
-      <height>431</height>
+      <width>761</width>
+      <height>491</height>
      </rect>
     </property>
     <property name="frameShape">
@@ -87,47 +101,6 @@
     </property>
     <property name="text">
      <string>Выберите уровень</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="add">
-    <property name="geometry">
-     <rect>
-      <x>590</x>
-      <y>530</y>
-      <width>118</width>
-      <height>28</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Добавить уровень</string>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="pathTolevel">
-    <property name="geometry">
-     <rect>
-      <x>70</x>
-      <y>530</y>
-      <width>511</width>
-      <height>31</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLabel" name="newLevelLabel">
-    <property name="geometry">
-     <rect>
-      <x>110</x>
-      <y>500</y>
-      <width>431</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>10</pointsize>
-     </font>
-    </property>
-    <property name="text">
-     <string>Укажите полный путь к файлу добавляемого уровня:</string>
     </property>
    </widget>
   </widget>

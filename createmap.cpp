@@ -6,7 +6,6 @@
 #include <QTextStream>
 #include <QMessageBox>
 #include <QTextCodec>
-#include <dialog.h>
 #include <globals.h>
 #include <QKeyEvent>
 
@@ -303,7 +302,6 @@ void CreateMap::on_create_clicked() {
         
         QDir* dir;
         QDir().mkdir("map");
-
         QFile qconfig(dir->currentPath() + "/map/config.txt");
         qconfig.open(QFile::WriteOnly | QFile::Append);
         QTextStream writeStreamConfig(&qconfig);

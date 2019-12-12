@@ -14,7 +14,7 @@
 #include"click.h"
 #include<vector>
 #include"globals.h"
-#include "dialog.h"
+
 
 namespace Ui {
 class gamewindow;
