@@ -318,6 +318,7 @@ void gamewindow::moveWithTime() {
         connect(window, SIGNAL(button_pushed()), this, SLOT(on_Stop_clicked()));
         timer->stop();
         clickable = true;
+        move = true;
     }
     else {
         if (countStars == 0) {
@@ -327,12 +328,15 @@ void gamewindow::moveWithTime() {
             pathToMap = globals().goToLevel();
             connect(window, SIGNAL(button_pushed()), this, SLOT(newLevel()));
             timer->stop();
+            move = true;
         }
         else {
             if (commandNow == vectorFunction[functionNow].size()) {
                 timer->stop();
+                clickable = true;
             }
             else {
+                vectorFunction[functionNow][commandNow]->changePress();
                 ClickFunction* function = vectorFunction[functionNow][commandNow];
                 if (checkColor(function)) {
                     switch (function->getCommand()->getIndex()) {
@@ -483,6 +487,7 @@ void gamewindow::command_Pressed(ClickCommand* command) {
 }
 
 void gamewindow::on_Stop_clicked() {
+    vectorFunction[0][0]->changePress();
     clickable = true;
     timer->stop();
     scenemap->clear();
@@ -494,6 +499,7 @@ void gamewindow::on_Stop_clicked() {
 }
 
 void gamewindow::on_Play_clicked() {
+    clickFunctionNow->changePress();
     clickable = false;
     functionNow = 0;
     commandNow = 0;

@@ -135,6 +135,20 @@ void CreateMap::image_Pressed(ClickCommand* command) {
     if (clickFunctionNow != nullptr) {
         clickFunctionNow->setCommand(command);
     }
+    if (clickcommand->getIndex() > 5) {
+        switch (clickcommand->getIndex()) {
+        case 7:
+            clickFunctionNow->setRotation(90);
+            break;
+        case 8:
+            clickFunctionNow->setRotation(180);
+            break;
+        case 9:
+            clickFunctionNow->setRotation(270);
+            break;
+        }
+        player = clickFunctionNow;
+    }
     clickFunctionNow->update();
 }
 
@@ -286,7 +300,7 @@ void CreateMap::on_create_clicked() {
         QMessageBox::information(this, "Неверное название", "Такое название уже используется. Выберите другое название уровня.");
     }
     else {
-        std::ofstream file;
+        
         QDir* dir;
         QDir().mkdir("map");
 
@@ -415,7 +429,7 @@ void CreateMap::on_create_clicked() {
         }
         writeStream << colors.length() / 2 << "\n";
         writeStream << colors.remove(0, 1);
-        QString s = dir->currentPath() + "/" + ui->name_level->text() + ".txt";
+        //QString s = dir->currentPath() + "/" + ui->name_level->text() + ".txt";
         qfile.close();
         QMessageBox::information(this, "\"" + ui->name_level->text() + "\" добавлен", "Чтобы пройти созданный уровень выберите его в меню уровней");
         player = nullptr;
@@ -429,7 +443,7 @@ void CreateMap::on_howToCreate_clicked()
     QMessageBox::information(this, "Как создать уровень", "Выберите...");
 }
 
-void CreateMap::keyPressEvent(QKeyEvent* event) {
+/*void CreateMap::keyPressEvent(QKeyEvent* event) {
     QCoreApplication::processEvents();
     int key = event->key();
     int colum = clickFunctionNow->getColum();
@@ -455,7 +469,7 @@ void CreateMap::keyPressEvent(QKeyEvent* event) {
         }
     }
 
-}
+}*/
 //проверка на то что корабля больше нет
 //подсвечивание того что нажато
 //убрать звезды нажатием

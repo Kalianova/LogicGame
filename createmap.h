@@ -56,7 +56,7 @@ private slots:
     void on_create_clicked();
     void on_howToCreate_clicked();
 protected:
-    void keyPressEvent(QKeyEvent* event);
+    //void keyPressEvent(QKeyEvent* event);
 };
 
 #endif // CREATEMAP_H
