@@ -29,20 +29,9 @@ public:
     int getBeginRotation(){
         return rotation_;
     }
-    int changeRotation(int Rotation);
-    //bool isMoveForward(Map map);
-
     void moveRight(){rotationNow = (rotationNow+90) % 360;}
     void moveLeft(){rotationNow = (rotationNow + 270) % 360;}
-/*
-signals:
 
-public slots:
-    void slotGameTimer();
-    // Слот, который отвечает за обработку перемещения
-protected:
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
-*/
 private:
     int row_{0};
     int rowNow{0};
@@ -50,11 +39,6 @@ private:
     int colum_{0};
     int rotation_{0};
     int rotationNow{0};
-
-    //0 = up
-    //1 = down
-    //2 = left
-    //3 = right
 };
 
 #endif // PLAYER_H

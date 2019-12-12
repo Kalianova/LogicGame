@@ -3,9 +3,7 @@
 #include "map.h"
 #include "gamewindow.h"
 #include "createmap.h"
-#include <exception>
-#include <QDir>
-#include <QFileDialog>
+
 
 levels::levels(QWidget* parent) :
 	QMainWindow(parent),
@@ -129,7 +127,6 @@ void levels::on_download_clicked() {
             writeStreamConfig.setCodec("UTF-8");
             writeStreamConfig << path << " 0" << "\r\n";
             qconfig.close();
-            QMessageBox::information(this, "Успешно", "Уровень добавлен в меню уровней");
             readLevels();
             drawLevels();
         }

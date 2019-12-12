@@ -9,7 +9,7 @@ Player::Player(int Row, int Colum, int Rotation)
     rotationNow = rotation_;
 }
 
-void Player::setBeginPosition(int Row, int Colum){
+void Player::setBeginPosition(int Row, int Colum) {
     row_ = Row;
     colum_ = Colum;
 }
@@ -18,18 +18,3 @@ void Player::setPosition(int Row, int Colum) {
     rowNow = Row;
     columNow = Colum;
 }
-
-int Player::changeRotation(int Rotation)
-{
-    rotationNow  = Rotation;
-    return 1;
-}
-
-
-/*void Player::slotGameTimer()
-{
-
-}*/
-
-
-

@@ -4,14 +4,8 @@
 
 #include<QColor>
 #include<vector>
-#include<tuple>
 #include<player.h>
 
-
-//    TO-DO
-//    constructor from ui
-//    добавление команд и кнопок которые будут нужны
-//    timer
 
 class Map{
 public:
@@ -36,7 +30,6 @@ public:
         TileMap[row].replace(colum, 1, color);
     }
     QColor getColor(unsigned int num){return colors[num];}
-    void Draw();
     Player player;
 private:
 

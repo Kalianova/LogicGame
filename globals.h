@@ -1,11 +1,8 @@
 #ifndef GLOBALS_H
 #define GLOBALS_H
 
-#include <exception>
-
-#include <QGraphicsItem>
-#include <QGraphicsScene>
-#include <QColor>
+#include <QTextStream>
+#include <QTextCodec>
 #include <QString>
 #include <QDir>
 
@@ -19,10 +16,9 @@ class globals
 {
 
 public:
-    globals();
+    globals(){};
     void setLevelDone(QString path);
     QString goToLevel();
-private:
 
 };
 

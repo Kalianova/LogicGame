@@ -23,10 +23,10 @@
 //Их количество, далее количества клеточек и последняя цифра номер функции
 //Считывание цветов:
 //Их количество, далее их значения на новой строке
-void Map::ReadFrom(QString Path){
+void Map::ReadFrom(QString Path) {
 	QFile file(Path);
 	file.open(QIODevice::ReadOnly);
-    int Size;
+	int Size;
 	QTextStream stream(&file);
 	stream >> Size;
 	stream.readLine();
@@ -34,74 +34,73 @@ void Map::ReadFrom(QString Path){
 	comands.clear();
 	functions.clear();
 	colors.clear();
-    for(int i = 0; i<Size;i++){
-      TileMap.push_back(stream.readLine().toStdString());
-    }
-    if(TileMap.size()!=0){
-    int row, colum, rotation;
-    stream>>row>>colum>>rotation;
-    if(ColorOfRect(row,colum)==Qt::black){
-		valid = false;
-    }
-    player = Player(row, colum, rotation);
-	stream.readLine();
-    stream>>Size;
-	stream.readLine();
-	if (comands.size() != Size) {
-		for (int i = 0; i < Size; i++) {
-			int command;
-			stream >> command;
-			comands.push_back(command);
-		}
+	for (int i = 0; i < Size; i++) {
+		TileMap.push_back(stream.readLine().toStdString());
 	}
-	stream.readLine();
-	stream >> Size;
-	stream.readLine();
-	if (functions.size() != Size) {
-		for (int i = 0; i < Size; i++) {
-			int function;
-			stream >> function;
-			functions.push_back(function);
+	if (TileMap.size() != 0) {
+		int row, colum, rotation;
+		stream >> row >> colum >> rotation;
+		if (ColorOfRect(row, colum) == Qt::black) {
+			valid = false;
 		}
-	}
-	stream.readLine();
-	stream >> Size;
-	stream.readLine();
-	if (colors.size() != Size) {
-		for (int i = 0; i < Size; i++) {
-			int color;
-			stream >> color;
-			QColor Color;
-			switch (color) {
-			case 1:
-				Color = Qt::blue;
-				break;
-			case 2:
-				Color = Qt::darkMagenta;
-				break;
-			case 3:
-				Color = Qt::red;
-				break;
-			case 4:
-				Color = Qt::darkYellow;
-				break;
-			default:
-				valid = false;
+		player = Player(row, colum, rotation);
+		stream.readLine();
+		stream >> Size;
+		stream.readLine();
+		if (comands.size() != Size) {
+			for (int i = 0; i < Size; i++) {
+				int command;
+				stream >> command;
+				comands.push_back(command);
 			}
-			colors.push_back(Color);
 		}
+		stream.readLine();
+		stream >> Size;
+		stream.readLine();
+		if (functions.size() != Size) {
+			for (int i = 0; i < Size; i++) {
+				int function;
+				stream >> function;
+				functions.push_back(function);
+			}
+		}
+		stream.readLine();
+		stream >> Size;
+		stream.readLine();
+		if (colors.size() != Size) {
+			for (int i = 0; i < Size; i++) {
+				int color;
+				stream >> color;
+				QColor Color;
+				switch (color) {
+				case 1:
+					Color = Qt::blue;
+					break;
+				case 2:
+					Color = Qt::darkMagenta;
+					break;
+				case 3:
+					Color = Qt::red;
+					break;
+				case 4:
+					Color = Qt::darkYellow;
+					break;
+				default:
+					valid = false;
+				}
+				colors.push_back(Color);
+			}
+		}
+		stream.readLine();
 	}
-	stream.readLine();
-    }
-    else{
-        valid = false;
-    }
+	else {
+		valid = false;
+	}
 	file.close();
 }
 
 QColor Map::ColorOfRect(int Height, int Width){
     std::string str = TileMap[Height];
-
     int num = str[Width] - '0';
     switch(num % 5){
     case 0:
@@ -119,8 +118,6 @@ QColor Map::ColorOfRect(int Height, int Width){
     }
 }
 
-
-
 int Map::getNumber(int Height, int Width) {
     std::string str = TileMap[Height];
     return str[Width] - '0';
@@ -128,8 +125,4 @@ int Map::getNumber(int Height, int Width) {
 
 int Map::getSize(){
     return TileMap.size();
-}
-
-void Map::Draw(){
-
 }

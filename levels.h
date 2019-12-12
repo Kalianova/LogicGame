@@ -12,6 +12,8 @@
 #include "globals.h"
 #include "vector"
 #include <click.h>
+#include <QDir>
+#include <QFileDialog>
 
 namespace Ui {
 class levels;
@@ -28,17 +30,11 @@ public:
     ~levels();
 
 private slots:
-
     void color_Pressed(ClickColor*);
-
     void on_exit_clicked();
-
     void on_beginLevel_clicked();
-
     void on_create_clicked();
-
     void on_download_clicked();
-
     void on_deleteLevel_clicked();
 
 private:
