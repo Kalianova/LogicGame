@@ -31,7 +31,7 @@ gamewindow::gamewindow(QString path, QWidget* parent) :
     ui->commands->setScene(scenecommands);
 
     timer = new QTimer();
-    timer->setInterval(100);
+    timer->setInterval(500);
     connect(timer, SIGNAL(timeout()), this, SLOT(moveWithTime()));
 }
 
@@ -50,8 +50,7 @@ void gamewindow::setRectangle(QColor color, int row, int col, double count) {
     }
 }
 
-void gamewindow::setImage(int row, int colum, QString path, qreal rotation)
-{
+void gamewindow::setImage(int row, int colum, QString path, qreal rotation) {
     QPixmap image;
     double size = (this->ui->graphicsView->height() - 4) / map.getSize();
     image.load(path);
@@ -61,7 +60,7 @@ void gamewindow::setImage(int row, int colum, QString path, qreal rotation)
     pix->setParentItem(scenemap->itemAt(row * size + size/2 , colum * size + size/2 , QTransform()));
     switch ((int)rotation) {
     case 0:
-        pix->setPos(row * size, colum * size);
+        pix->setPos(row * size , colum * size);
         break;
     case 90:
         pix->setPos(row * size + size, colum * size);
@@ -80,13 +79,9 @@ void gamewindow::setPlayer(Player player) {
 }
 
 void gamewindow::setSceneCommands() {
-    if (ui->commands->height() - 4 > (this->ui->commands->width() - 4) / (SIZE_OF_FUNCTIONS + 3) * (count + map.getFunctionsCount()) + 7) {
-        scenecommands->setSceneRect(0, 0, ui->commands->width() - 4, ui->commands->height() - 4);
-    }
-    else {
-        scenecommands->setSceneRect(0, 0, ui->commands->width() - 4, (this->ui->commands->width() - 4) / (SIZE_OF_FUNCTIONS + 3) * (count + map.getFunctionsCount()) + 7);
-    }
-    double size = (this->ui->commands->width() - 4) / (SIZE_OF_FUNCTIONS + 3);
+    double size = (ui->commands->width() - 4) / SIZE_OF_FUNCTIONS;
+    double sizeCommand = (ui->commands->width() - 4) / SIZE_OF_COMMANDS;
+
     move = true;
     vectorFunction.resize(map.getFunctionsCount());
     vectorNameFunction.resize(0);
@@ -105,16 +100,17 @@ void gamewindow::setSceneCommands() {
     for (int i = 0; i < map.getColorsCount(); i++) {
         setColor(i);
     }
+
     if (vectorColor.size() > map.getColorsCount()) {
-        vectorColor[map.getColorsCount()]->setSize(size);
-        vectorColor[map.getColorsCount()]->setPos(size * (SIZE_OF_FUNCTIONS + 3) - size / 2,
-            size / 2 + size * map.getColorsCount());
+        vectorColor[map.getColorsCount()]->setSize(sizeCommand);
+        vectorColor[map.getColorsCount()]->setPos(sizeCommand / 2 + sizeCommand * map.getColorsCount(),
+            sizeCommand * 1.5);
         vectorColor[map.getColorsCount()]->update();
     }
     else {
-        clickcolor = new ClickColor(Qt::white, size, 1);
-        clickcolor->setPos(size * (SIZE_OF_FUNCTIONS + 3) - size / 2,
-            size / 2 + size * map.getColorsCount());
+        clickcolor = new ClickColor(Qt::white, sizeCommand, 1);
+        clickcolor->setPos(sizeCommand / 2 + sizeCommand * map.getColorsCount(),
+            sizeCommand *1.5);
         QPixmap image;
         image.load(":/image/eraser.png");
         clickcolor->setImage(image);
@@ -122,12 +118,19 @@ void gamewindow::setSceneCommands() {
         scenecommands->addItem(clickcolor);
         vectorColor.push_back(clickcolor);
     }
+    if (ui->commands->height() - 4 > size* (count + map.getFunctionsCount()) + sizeCommand * 2.4 ) {
+        scenecommands->setSceneRect(0, 0, ui->commands->width() - 4, ui->commands->height() - 4);
+    }
+    else {
+        scenecommands->setSceneRect(0, 0, ui->commands->width() - 4, size * (count + map.getFunctionsCount()) + sizeCommand * 2.4 );
+    }
 }
 
 void gamewindow::setCommand(int num) {
-    double size = (this->ui->commands->width() - 4) / (SIZE_OF_FUNCTIONS + 3);
+    double size = (this->ui->commands->width() - 4) / SIZE_OF_COMMANDS;
     if (vectorCommand.size() > num) {
-        vectorCommand[num]->setPos(size / 2 +( SIZE_OF_FUNCTIONS+0.7)*size, size / 2 + size * num);
+        vectorCommand[num]->setPos(size * num + size / 2,
+            size / 2);
         vectorCommand[num]->setSize(size);
         vectorCommand[num]->update();
     }
@@ -183,7 +186,7 @@ void gamewindow::setCommand(int num) {
             clickcommand = new ClickCommand(image, size, 8);
             break;
         }
-        clickcommand->setPos(size / 2 + (SIZE_OF_FUNCTIONS + 0.7) * size, size / 2 + size * num);
+        clickcommand->setPos(size * num + size / 2, size / 2);
         connect(clickcommand, SIGNAL(commandChanged(ClickCommand*)), this, SLOT(command_Pressed(ClickCommand*)));
         scenecommands->addItem(clickcommand);
         vectorCommand.push_back(clickcommand);
@@ -191,7 +194,8 @@ void gamewindow::setCommand(int num) {
 }
 
 void gamewindow::setFunc(int count, int countRect, int functionNumber) {
-    double size = (this->ui->commands->width() - 4) / (SIZE_OF_FUNCTIONS + 4);
+    double size = (this->ui->commands->width() - 4) / (SIZE_OF_FUNCTIONS + 1);
+    double sizeCommands = (this->ui->commands->width() - 4) / SIZE_OF_COMMANDS;
     QPixmap image;
     image.load(":/image/function" + QString::number(countRect%10));
     image = image.scaled(size - 4, size - 4);
@@ -199,12 +203,12 @@ void gamewindow::setFunc(int count, int countRect, int functionNumber) {
     QGraphicsPixmapItem* pix = new QGraphicsPixmapItem(image);
     rect = new QGraphicsRectItem();
     rect->setRect(2,
-        size * count + 2 + functionNumber * 0.2 * size,
+        sizeCommands*2.4 +size * count + 2 + functionNumber * 0.2 * size,
         size - 4,
         size - 4);
     rect->setBrush(Qt::gray);
 
-    pix->setPos(2, size* count + 2 + functionNumber*0.2*size);
+    pix->setPos(2, sizeCommands * 2.4 + size* count + 2 + functionNumber*0.2*size);
     pix->setParentItem(rect);
 
     scenecommands->addItem(rect);
@@ -213,14 +217,14 @@ void gamewindow::setFunc(int count, int countRect, int functionNumber) {
     for (size_t i = 0; i < countRect/10; i++) {
         if (vectorFunction[functionNumber].size() > i) {
             vectorFunction[functionNumber][i]->setPos(size + size * (i % SIZE_OF_FUNCTIONS) + size/2,
-                size * (count + (i) / SIZE_OF_FUNCTIONS + 0.5) + functionNumber*size*0.2);
+                size * (count + (i) / SIZE_OF_FUNCTIONS + 0.5) + sizeCommands * 2.4 + functionNumber*size*0.2);
             vectorFunction[functionNumber][i]->setSize(size);
             vectorFunction[functionNumber][i]->update();
         }
         else {
             clickfunction = new ClickFunction(size, functionNumber, i);
             clickfunction->setPos(size+ size * (i % SIZE_OF_FUNCTIONS) + size/2,
-                size * (count + (i) / SIZE_OF_FUNCTIONS + 0.5 ) + functionNumber * size*0.2);
+                size * (count + (i) / SIZE_OF_FUNCTIONS + 0.5 ) + sizeCommands * 2.4+ functionNumber * size*0.2);
             connect(clickfunction, SIGNAL(functionChanged(ClickFunction*)), this, SLOT(function_Pressed(ClickFunction*)));
             vectorFunction[functionNumber].push_back(clickfunction);
             scenecommands->addItem(clickfunction);
@@ -229,17 +233,17 @@ void gamewindow::setFunc(int count, int countRect, int functionNumber) {
 }
 
 void gamewindow::setColor(int num) {
-    double size = (this->ui->commands->width() - 4) / (SIZE_OF_FUNCTIONS + 3);
+    double size = (this->ui->commands->width() - 4) / SIZE_OF_COMMANDS;
     if (vectorColor.size() > num) {
         vectorColor[num]->setSize(size);
-        vectorColor[num]->setPos(size * (SIZE_OF_FUNCTIONS + 3) - size / 2,
-            size / 2 + size * num);
+        vectorColor[num]->setPos(size * num + size / 2,
+            size + size / 2);
         vectorColor[num]->update();
     }
     else {
         clickcolor = new ClickColor(map.getColor(num), size, 1);
-        clickcolor->setPos(size * (SIZE_OF_FUNCTIONS + 3) - size / 2,
-            size / 2 + size * num);
+        clickcolor->setPos(size * num + size / 2,
+           size + size / 2);
         connect(clickcolor, SIGNAL(colorChanged(ClickColor*)), this, SLOT(color_Pressed(ClickColor*)));
         scenecommands->addItem(clickcolor);
         vectorColor.push_back(clickcolor);
@@ -336,8 +340,24 @@ void gamewindow::moveWithTime() {
                 clickable = true;
             }
             else {
-                vectorFunction[functionNow][commandNow]->changePress();
+                clickFunctionNow->changePress();
+                if (clickFunctionNow->getCommand() != nullptr) {
+                    clickFunctionNow->getCommand()->changePress();
+                }
+                if (clickFunctionNow->getColor() != nullptr) {
+                    clickFunctionNow->getColor()->changePress();
+                }
+               
                 ClickFunction* function = vectorFunction[functionNow][commandNow];
+                function->changePress();
+                if (function->getCommand() != nullptr) {
+                    function->getCommand()->changePress();
+                }
+                if (function->getColor() != nullptr) {
+                    function->getColor()->changePress();
+                }
+              
+                clickFunctionNow = function;
                 if (checkColor(function)) {
                     switch (function->getCommand()->getIndex()) {
                     case 0:
@@ -487,7 +507,12 @@ void gamewindow::command_Pressed(ClickCommand* command) {
 }
 
 void gamewindow::on_Stop_clicked() {
-    vectorFunction[0][0]->changePress();
+    if (clickFunctionNow->getCommand() != nullptr) {
+        clickFunctionNow->getCommand()->changePress();
+    }
+    if (clickFunctionNow->getColor() != nullptr) {
+        clickFunctionNow->getColor()->changePress();
+    }
     clickable = true;
     timer->stop();
     scenemap->clear();
@@ -499,7 +524,12 @@ void gamewindow::on_Stop_clicked() {
 }
 
 void gamewindow::on_Play_clicked() {
-    clickFunctionNow->changePress();
+    if (clickFunctionNow->getCommand() != nullptr) {
+        clickFunctionNow->getCommand()->changePress();
+    }
+    if (clickFunctionNow->getColor() != nullptr) {
+        clickFunctionNow->getColor()->changePress();
+    }
     clickable = false;
     functionNow = 0;
     commandNow = 0;

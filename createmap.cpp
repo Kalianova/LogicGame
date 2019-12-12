@@ -400,7 +400,7 @@ void CreateMap::on_create_clicked() {
             count++;
         }
         if (ui->spinBoxFunction3->value() != 0) {
-            functions = " " + QString::number(ui->spinBoxFunction3->value()) + "3";
+            functions += " " + QString::number(ui->spinBoxFunction3->value()) + "3";
             count++;
         }
         if (ui->spinBoxFunction4->value() != 0) {
@@ -429,7 +429,6 @@ void CreateMap::on_create_clicked() {
         }
         writeStream << colors.length() / 2 << "\n";
         writeStream << colors.remove(0, 1);
-        //QString s = dir->currentPath() + "/" + ui->name_level->text() + ".txt";
         qfile.close();
         QMessageBox::information(this, "\"" + ui->name_level->text() + "\" добавлен", "Чтобы пройти созданный уровень выберите его в меню уровней");
         player = nullptr;
