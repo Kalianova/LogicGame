@@ -17,45 +17,31 @@
    <widget class="QWidget" name="horizontalLayoutWidget">
     <property name="geometry">
      <rect>
-      <x>210</x>
+      <x>390</x>
       <y>10</y>
-      <width>573</width>
+      <width>271</width>
       <height>51</height>
      </rect>
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="QPushButton" name="download">
-       <property name="text">
-        <string>Загрузить уровень</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="create">
-       <property name="text">
-        <string>Создать уровень</string>
-       </property>
-      </widget>
-     </item>
-     <item>
       <widget class="QPushButton" name="beginLevel">
        <property name="text">
-        <string>Начать уровень</string>
+        <string>Начать</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="deleteLevel">
        <property name="text">
-        <string>Удалить уровень</string>
+        <string>Удалить</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="exit">
+      <widget class="QPushButton" name="moveLevel">
        <property name="text">
-        <string>В главное меню</string>
+        <string>Переместить</string>
        </property>
       </widget>
      </item>
@@ -103,6 +89,19 @@
      <string>Выберите уровень</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="exit">
+    <property name="geometry">
+     <rect>
+      <x>680</x>
+      <y>20</y>
+      <width>103</width>
+      <height>28</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>В главное меню</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -113,8 +112,32 @@
      <height>26</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menu">
+    <property name="title">
+     <string>Добавить уровень</string>
+    </property>
+    <addaction name="download"/>
+    <addaction name="create"/>
+   </widget>
+   <addaction name="menu"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="download">
+   <property name="text">
+    <string>Загрузить</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+D</string>
+   </property>
+  </action>
+  <action name="create">
+   <property name="text">
+    <string>Создать</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+N</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>

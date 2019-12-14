@@ -14,6 +14,7 @@ gamewindow::gamewindow(QString path, QWidget* parent) :
     ui->setupUi(this);
     this->setWindowTitle("Игра");
     this->resize(1000, 585);
+    
 
     scenemap = new QGraphicsScene();
     scenecommands = new QGraphicsScene();
@@ -25,14 +26,26 @@ gamewindow::gamewindow(QString path, QWidget* parent) :
 
     scenemap->setBackgroundBrush(QBrush(Qt::black));
     map.ReadFrom(pathToMap);
-    std::string s = pathToMap.toStdString();
-    ui->LevelName->setText(QString::fromStdString(s.substr(s.find_last_of('/') + 1,s.find_last_of('.') - s.find_last_of('/') - 1)));
+    ui->LevelName->setText(globals::nameOfLevelFromPath(pathToMap));
     ui->graphicsView->setScene(scenemap);
     ui->commands->setScene(scenecommands);
 
-    timer = new QTimer();
+    timer = new QTimer(this);
     timer->setInterval(170);
     connect(timer, SIGNAL(timeout()), this, SLOT(moveWithTime()));
+
+    keyCtrlA = new QShortcut(this); 
+    keyCtrlA->setKey(Qt::CTRL + Qt::Key_A); 
+    connect(keyCtrlA, SIGNAL(activated()), this, SLOT(on_Play_clicked()));
+
+    keyCtrlS = new QShortcut(this); 
+    keyCtrlS->setKey(Qt::CTRL + Qt::Key_S); 
+    connect(keyCtrlS, SIGNAL(activated()), this, SLOT(on_Stop_clicked()));
+
+    keyCtrlD = new QShortcut(this); 
+    keyCtrlD->setKey(Qt::CTRL + Qt::Key_D);
+    connect(keyCtrlD, SIGNAL(activated()), this, SLOT(on_Restart_clicked()));
+
 }
 
 gamewindow::~gamewindow() {
@@ -196,14 +209,6 @@ void gamewindow::setCommand(int num) {
 void gamewindow::setFunc(int count, int countRect, int functionNumber) {
     double size = (this->ui->commands->width() - 4) / (SIZE_OF_FUNCTIONS + 1);
     double sizeCommands = (this->ui->commands->width() - 4) / SIZE_OF_COMMANDS;
-
-    /* Для изменения иконки
-    
-    QGraphicsTextItem* text = new QGraphicsTextItem(QString::fromStdString(s.substr(s.find_last_of('/') + 1, s.find_last_of('.') - s.find_last_of('/') - 1)));
-    text->setPos(i % SIZE_OF_LEVELS * size + 4, i / SIZE_OF_LEVELS * size + 7);
-    text->setTextWidth(size - 2);
-    scene->addItem(clickcolor);
-    scene->addItem(text);*/
     QPixmap image;
     image.load(":/image/function" + QString::number(countRect%10));
     image = image.scaled(size - 4, size - 4);
@@ -218,8 +223,6 @@ void gamewindow::setFunc(int count, int countRect, int functionNumber) {
 
     pix->setPos(2, sizeCommands * 2.4 + size* count + 2 + functionNumber*0.2*size);
     pix->setParentItem(rect);
-
-
 
     scenecommands->addItem(rect);
     vectorNameFunction.push_back(rect);
@@ -335,8 +338,8 @@ void gamewindow::moveWithTime() {
     else {
         if (countStars == 0) {
             int k = QMessageBox::question(this, "Уровень решен", "Поздравляю",  "Остаться на этом", "Следующий уровень", 0,1);
-            globals().setLevelDone(pathToMap);
-            pathToMap = globals().goToLevel();
+            globals::setLevelDone(pathToMap);
+            pathToMap = globals::goToLevel();
             if (k) {
                 newLevel();
             }
@@ -513,11 +516,13 @@ void gamewindow::on_Stop_clicked() {
 }
 
 void gamewindow::on_Play_clicked() {
-    clickFunctionNow->changePressCommand();
-    clickable = false;
-    functionNow = 0;
-    commandNow = 0;
-    timer->start();
+    if (clickable) {
+        clickFunctionNow->changePressCommand();
+        clickable = false;
+        functionNow = 0;
+        commandNow = 0;
+        timer->start();
+    }
 }
 
 void gamewindow::newLevel() {
@@ -526,8 +531,7 @@ void gamewindow::newLevel() {
     }
     else {
         map.ReadFrom(pathToMap);
-        std::string s = pathToMap.toStdString();
-        ui->LevelName->setText(QString::fromStdString(s.substr(s.find_last_of('/') + 1, s.find_last_of('.') - s.find_last_of('/') - 1)));
+        ui->LevelName->setText(globals::nameOfLevelFromPath(pathToMap));
         on_Restart_clicked();
     }
     on_Stop_clicked();
@@ -535,7 +539,7 @@ void gamewindow::newLevel() {
 
 void gamewindow::on_Restart_clicked() {
     clickable = true;
-    if (globals().goToLevel() != nullptr) {
+    if (globals::goToLevel() != nullptr) {
         scenecommands->clear();
         vectorFunction.resize(0);
         vectorColor.resize(0);
@@ -629,15 +633,14 @@ void gamewindow::keyPressEvent(QKeyEvent* event) {
     }
 }
 
-void gamewindow::on_question_clicked()
-{
-    QMessageBox::information(this, "Как играть в эту игру?", "1) Чтобы пройти уровень нужно собрать все звезды, для этого нужно составить наборы команд для ракеты\n"
+void gamewindow::on_question_clicked() {
+    QMessageBox::information(this, "Как играть в эту игру?", 
+        "1) Чтобы пройти уровень нужно собрать все звезды, для этого нужно составить наборы команд для ракеты\n"
         "2) Можно перемещаться вперед, поворачивать направо и налево, перекрашивать клетки новым цветом, вызывать другой набор команд (наборы команд обозначаются анимированными героями)\n"
         "3) Команда, к которой будет добавлен цвет, будет выполняться только в том случае если ракета в тот момент будет находится на клетке такого же цвета\n"
         "4) Для выбора цвета и команды выделенной клетки нужно нажать левой кнопкой мыши на их значения в правой части экрана, при перемещении на следующую пустую клетку она автоматически заполняется значениями из предыдущей"
         "5) Если цвет или команда выбраны в данной клетке, то он отобразятся в ней и будут выделены темным контуром\n"
         "6) Перемещаться по наборам команд можно либо нажатием левой кнопки мыши, либо с помощью стрелок или клавиш WASD\n"
-
         "7) Чтобы убрать из клетки цвет или команду, выберите клетку и нажмите по команде или цвету еще раз\n"
         "8) Чтобы опробовать решение нажмите ");
 }

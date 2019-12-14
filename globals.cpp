@@ -52,3 +52,8 @@ QString globals::goToLevel() {
         return name;
     }
 }
+
+QString globals::nameOfLevelFromPath(QString path) {
+    std::string s = path.toStdString();
+    return QString::fromStdString(s.substr(s.find_last_of('/') + 1, s.find_last_of('.') - s.find_last_of('/') - 1));
+}

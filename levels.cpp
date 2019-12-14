@@ -3,6 +3,7 @@
 #include "map.h"
 #include "gamewindow.h"
 #include "createmap.h"
+#include <QAction>
 
 
 levels::levels(QWidget* parent) :
@@ -20,6 +21,11 @@ levels::levels(QWidget* parent) :
     ui->graphicsView->setScene(scene);
     readLevels();
 	drawLevels();
+
+    dialog = new QFileDialog(this);  
+
+    connect(ui->create, SIGNAL(triggered()), this, SLOT(on_create_clicked()));
+    connect(ui->download, SIGNAL(triggered()), this, SLOT(on_download_clicked()));
 }
 
 void levels::readLevels(){
@@ -32,9 +38,14 @@ void levels::readLevels(){
         QString s = qfile.readLine();
         solved = s[s.size()-2].digitValue();
         name = s.mid(0,s.size() - 3);
-        pathsToLevel.push_back(std::make_pair(name,solved));
+        Map validMap;
+        validMap.ReadFrom(name);
+        if (validMap.isValid()) {
+            pathsToLevel.push_back(std::make_pair(name, solved));
+        }
     }
     qfile.close();
+    writeFile();
 }
 
 void levels::drawLevels() {
@@ -52,15 +63,14 @@ void levels::drawLevels() {
         else {
             clickcolor = new ClickColor(Qt::lightGray, size, i);
         }
-        std::string s = pathsToLevel[i].first.toStdString();
         clickcolor->setPos(i % SIZE_OF_LEVELS * size + size / 2 + 2, i / SIZE_OF_LEVELS * size + size / 2 + 2);
-        connect(clickcolor, SIGNAL(colorChanged(ClickColor*)), this, SLOT(color_Pressed(ClickColor*)));
         rects.push_back(clickcolor);
-        QGraphicsTextItem* text = new QGraphicsTextItem(QString::fromStdString(s.substr(s.find_last_of('/') + 1, s.find_last_of('.') - s.find_last_of('/') - 1)));
-        text->setPos(i % SIZE_OF_LEVELS * size + 4, i / SIZE_OF_LEVELS * size + 7);
+        QGraphicsTextItem* text = new QGraphicsTextItem(globals::nameOfLevelFromPath(pathsToLevel[i].first));
+        text->setPos(-size/2 + 2, -size/2 + 5);
         text->setTextWidth(size - 2);
+        text->setParentItem(clickcolor);
         scene->addItem(clickcolor);
-        scene->addItem(text);
+        connect(clickcolor, SIGNAL(colorChanged(ClickColor*)), this, SLOT(level_Pressed(ClickColor*)));
     }
 }
 
@@ -70,33 +80,89 @@ void levels::openLevel(QString path) {
     this->setVisible(false);
 }
 
+void levels::writeFile() {
+    QFile qfile(QDir().currentPath() + "/map/config.txt");
+    qfile.open(QFile::WriteOnly);
+    QTextStream writeStreamConfig(&qfile);
+    writeStreamConfig.setCodec(QTextCodec::codecForName("UTF-8"));
+    for (size_t i = 0; i < pathsToLevel.size(); i++) {
+        writeStreamConfig << pathsToLevel[i].first << " " << pathsToLevel[i].second << "\r\n";
+    }
+    qfile.close();
+}
+
 levels::~levels() {
     delete ui;
 }
 
-void levels::color_Pressed(ClickColor* color) {
-    if (color->isPressed()) {
-        clickcolor = nullptr;
+void levels::level_Pressed(ClickColor* level) {
+    if (!moving) {
+        if (level->isPressed()) {
+            clicklevel = nullptr;
+        }
+        else {
+            if (clicklevel != nullptr) {
+                clicklevel->changePress();
+            }
+            clicklevel = level;
+        }
     }
     else {
-        if (clickcolor != nullptr) {
-            clickcolor->changePress();
+        int begin = clicklevel->getNumberColor();
+        int end  = level->getNumberColor();
+        std::pair<QString, int>  pair = pathsToLevel[clicklevel->getNumberColor()];
+        pathsToLevel.erase(pathsToLevel.begin() + clicklevel->getNumberColor());
+        if (clicklevel->getNumberColor() > level->getNumberColor()) {
+            pathsToLevel.insert(pathsToLevel.begin() + level->getNumberColor() + 1, pair);
         }
-        clickcolor = color;
+        else {
+            pathsToLevel.insert(pathsToLevel.begin() + level->getNumberColor(), pair);
+        }
+        level->changePress();
+        clicklevel->changePress();
+        writeFile();
+        moving = false;
+        QPointF position;//= rects[level->getNumberColor() + 1]->pos();
+        int index = level->getNumberColor() + 1;
+        if (clicklevel->getNumberColor() > level->getNumberColor()) {
+            position = rects[level->getNumberColor() + 1]->pos();
+            for (size_t i = level->getNumberColor() + 1; i < clicklevel->getNumberColor(); i ++ )
+            {
+                rects[i]->setIndex(i + 1);
+                rects[i]->setPos(rects[i + 1]->pos());
+            }
+        }
+        else {
+            position = rects[level->getNumberColor()]->pos();;
+            for (size_t i = level->getNumberColor(); i > clicklevel->getNumberColor(); i--)
+            {
+                rects[i]->setIndex(i - 1);
+                rects[i]->setPos(rects[i - 1]->pos());
+            }
+        }
+        clicklevel->setPos(position);
+        clicklevel->setIndex(index);
+        clicklevel = nullptr;
     }
 }
 
+void levels::test() {
+
+    readLevels();
+    drawLevels();
+    clicklevel = nullptr;
+}
 void levels::on_exit_clicked() {
     parentWindow->setVisible(true);
     this->close();
 }
 
 void levels::on_beginLevel_clicked() {
-    if (clickcolor != nullptr) {
-        openLevel(pathsToLevel[clickcolor->getNumberColor()].first);
+    if (clicklevel != nullptr) {
+        openLevel(pathsToLevel[clicklevel->getNumberColor()].first);
         readLevels();
         drawLevels();
-        clickcolor = nullptr;
+        clicklevel = nullptr;
     }
     else {
         QMessageBox::information(this, "Уровень не выбран", "Выберите уровень");
@@ -110,16 +176,17 @@ void levels::on_create_clicked() {
 }
 
 void levels::on_download_clicked() {
-    QString path = QFileDialog(this).getOpenFileName();
+    QString path = dialog->getOpenFileName(this, "Выберите уровень", QDir::currentPath() + "/map", tr("Text files(*.txt)"));  
     if (path != nullptr) {
         QFile qconfig(QDir().currentPath() + "/map/config.txt");
         for (size_t i = 0; i < pathsToLevel.size(); i++) {
-            if (pathsToLevel[i].first == path) {
+            if (globals::nameOfLevelFromPath(pathsToLevel[i].first) == globals::nameOfLevelFromPath(path)) {
                 QMessageBox::information(this, "Уровень уже существует", "Выберите другой файл");
                 return;
             }
         }
         Map map;
+        dialog->close();
         map.ReadFrom(path);
         if (map.isValid()) {
             qconfig.open(QFile::WriteOnly | QFile::Append);
@@ -138,7 +205,7 @@ void levels::on_download_clicked() {
 
 
 void levels::on_deleteLevel_clicked() {
-    if (clickcolor != nullptr) {
+    if (clicklevel != nullptr) {
         int n = QMessageBox::warning(this, "Удаление уровня", "Вы дествительно хотите удалить этот уровень?", "Да", "Нет", NULL, 0, 1);
         if (n == 0) {
             QFile qfile(QDir().currentPath() + "/map/config.txt");
@@ -146,15 +213,30 @@ void levels::on_deleteLevel_clicked() {
             QTextStream writeStreamConfig(&qfile);
             writeStreamConfig.setCodec(QTextCodec::codecForName("UTF-8"));
             for (size_t i = 0; i < pathsToLevel.size(); i++) {
-                if (i != clickcolor->getNumberColor()) {
+                if (i != clicklevel->getNumberColor()) {
                     writeStreamConfig << pathsToLevel[i].first << " " << pathsToLevel[i].second << "\r\n";
                 }
             }
             qfile.close();
             readLevels();
             drawLevels();
-            clickcolor = nullptr;
+            clicklevel = nullptr;
         }
+    }
+    else {
+        QMessageBox::information(this, "Уровень не выбран", "Выберите уровень");
+    }
+}
+
+void levels::on_moveLevel_clicked() {
+    if (clicklevel != nullptr) {
+        QMessageBox::information(this, "Выберите уровень", "Выберите уровень после которого хотите вставить уровень");
+        moving = true;
+        int number = clicklevel->getNumberColor();
+        readLevels();
+        drawLevels();
+        clicklevel = rects[number];
+        clicklevel->changePress();
     }
     else {
         QMessageBox::information(this, "Уровень не выбран", "Выберите уровень");

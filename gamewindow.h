@@ -7,7 +7,7 @@
 #include <QGraphicsRectItem>
 #include <QtGui>
 #include <QtCore>
-
+#include <QShortcut>
 #include <QTransform>
 #include <QGraphicsItem>
 #include"map.h"
@@ -90,6 +90,10 @@ private:
     std::vector<ClickColor*>vectorColor;
     std::vector<QGraphicsRectItem*> vectorNameFunction;
     int countStars{ 0 };
+
+    QShortcut* keyCtrlA;
+    QShortcut* keyCtrlS;
+    QShortcut* keyCtrlD;
 protected:
     void keyPressEvent(QKeyEvent* event);
 };

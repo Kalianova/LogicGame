@@ -14,12 +14,11 @@ const static int SIZE_OF_COMMANDS = 12;
 
 class globals
 {
-
 public:
     globals(){};
-    void setLevelDone(QString path);
-    QString goToLevel();
-
+    static void setLevelDone(QString path);
+    static QString goToLevel();
+    static QString nameOfLevelFromPath(QString path);
 };
 
 #endif // GLOBALS_H

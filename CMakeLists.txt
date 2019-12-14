@@ -2,6 +2,10 @@
 
 project(LogicGame LANGUAGES CXX)
 
+
+set (CMAKE_PREFIX_PATH "D:\\Qt\\5.13.1\\msvc2017_64")
+
+
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_INCLUDE_CURRENT_BINARY_DIR ON)
 
@@ -17,7 +21,7 @@ find_package(Qt5 COMPONENTS Core Gui Widgets REQUIRED)
 set(SRC_FILES createmap.cpp createmap.h createmap.ui gamewindow.cpp gamewindow.h gamewindow.ui
 globals.cpp globals.h main.cpp mainwindow.cpp mainwindow.h mainwindow.ui
 map.h map.cpp click.cpp click.h player.cpp player.h levels.h levels.cpp 
-levels.ui resources.qrc)
+levels.ui resources.qrc icon/icon.rc)
 
 
 

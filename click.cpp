@@ -28,6 +28,7 @@ void ClickColor::paint(QPainter* painter, const QStyleOptionGraphicsItem* option
 }
 
 void ClickColor::mousePressEvent(QGraphicsSceneMouseEvent* event) {
+
     emit colorChanged(this);
     changePress();
     Q_UNUSED(event)

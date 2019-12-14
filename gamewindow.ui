@@ -72,7 +72,10 @@
       <item>
        <widget class="QPushButton" name="Play">
         <property name="focusPolicy">
-         <enum>Qt::NoFocus</enum>
+         <enum>Qt::ClickFocus</enum>
+        </property>
+        <property name="toolTip">
+         <string>Ctrl+A</string>
         </property>
         <property name="text">
          <string>Запустить</string>
@@ -81,6 +84,12 @@
       </item>
       <item>
        <widget class="QPushButton" name="Stop">
+        <property name="focusPolicy">
+         <enum>Qt::ClickFocus</enum>
+        </property>
+        <property name="toolTip">
+         <string>Ctrl+S</string>
+        </property>
         <property name="text">
          <string>Стоп</string>
         </property>
@@ -89,7 +98,10 @@
       <item>
        <widget class="QPushButton" name="Restart">
         <property name="focusPolicy">
-         <enum>Qt::NoFocus</enum>
+         <enum>Qt::ClickFocus</enum>
+        </property>
+        <property name="toolTip">
+         <string>Ctrl+D</string>
         </property>
         <property name="text">
          <string>Начать заново</string>

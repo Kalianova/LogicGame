@@ -37,11 +37,9 @@ CreateMap::~CreateMap() {
 bool CreateMap::isUnique(QString name) {
     QFile qfile(QDir().currentPath() + "/map/config.txt");
     qfile.open(QFile::ReadOnly | QFile::Text);
-    std::string s;
     while (!qfile.atEnd()) {
         QString str = qfile.readLine();
-        s = str.mid(0, s.size() - 3).toStdString();
-        str = QString::fromStdString(s.substr(s.find_last_of('/') + 1, s.find_last_of('.') - s.find_last_of('/') - 1));
+        str = globals::nameOfLevelFromPath(str.mid(0, str.size() - 3));
         if (name == str) {
             return false;
         }

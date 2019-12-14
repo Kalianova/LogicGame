@@ -30,21 +30,27 @@ public:
     ~levels();
 
 private slots:
-    void color_Pressed(ClickColor*);
+    void level_Pressed(ClickColor*);
     void on_exit_clicked();
     void on_beginLevel_clicked();
     void on_create_clicked();
     void on_download_clicked();
     void on_deleteLevel_clicked();
+    void on_moveLevel_clicked();
 
 private:
     Ui::levels *ui;
 	QGraphicsScene* scene;
 	QWidget* parentWindow;
-    ClickColor* clickcolor{nullptr};
+    ClickColor* clicklevel{nullptr};
+    QFileDialog* dialog;
     void readLevels();
 	void drawLevels();
     void openLevel(QString);
+    void writeFile();
+    void test();
+
+    bool moving{ false };
 };
 
 #endif // LEVELS_H

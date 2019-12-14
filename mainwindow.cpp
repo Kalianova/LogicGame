@@ -39,7 +39,7 @@ void MainWindow::on_NewGame_clicked() {
         write.close();
         read.close();
     }
-    QString name = globals().goToLevel();
+    QString name = globals::goToLevel();
     if (name == nullptr) {
         QMessageBox::information(this, "Уровни пройдены", "Выберите уровень в меню уровней");
     }

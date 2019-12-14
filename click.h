@@ -13,6 +13,7 @@ class ClickColor : public QObject, public QGraphicsItem
 public:
     ClickColor(QColor, double, int);
     int getNumberColor() { return index; }
+    void setIndex(int Index) { index = Index; }
     void changePress();
     bool isPressed() { return pressed; }
     QColor getColor() { return color; }
