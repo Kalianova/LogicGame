@@ -17,7 +17,7 @@ CreateMap::CreateMap(QWidget* parent) :
 {
     ui->setupUi(this);
     this->setWindowTitle("Создать карту");
-    setWindowFlags(Qt::Dialog | Qt::MSWindowsFixedSizeDialogHint);
+    setWindowFlags(Qt::Window | Qt::WindowCloseButtonHint);
     setCheckBoxColor(Qt::blue, ui->blue);
     setCheckBoxColor(Qt::red, ui->red);
     setCheckBoxColor(Qt::darkMagenta, ui->dark_magenta);
@@ -105,21 +105,6 @@ void CreateMap::createFunction(int row, int colum, double size) {
     vectorfunctions.push_back(clickfunction);
 }
 
-void CreateMap::keyPressed(ClickFunction* before, ClickFunction* now) {
-    if (!now->isPressed()) {
-        if (before->getColor() != nullptr) {
-            now->setColor(before->getColor());
-            now->getColor()->changePress();
-        }
-        if (before->getCommand() != nullptr) {
-            now->setCommand(before->getCommand());
-            now->getCommand()->changePress();
-        }
-        now->changePress();
-    }
-    clickFunctionNow = now;
-}
-
 void CreateMap::image_Pressed(ClickCommand* command) {
     if (clickcommand != nullptr) {
         clickcommand->changePress();
@@ -129,24 +114,6 @@ void CreateMap::image_Pressed(ClickCommand* command) {
         clickcolor->changePress();
         clickcolor = nullptr;
     }
-    if (clickFunctionNow != nullptr) {
-        clickFunctionNow->setCommand(command);
-    }
-    if (clickcommand->getIndex() > 5) {
-        switch (clickcommand->getIndex()) {
-        case 7:
-            clickFunctionNow->setRotation(90);
-            break;
-        case 8:
-            clickFunctionNow->setRotation(180);
-            break;
-        case 9:
-            clickFunctionNow->setRotation(270);
-            break;
-        }
-        player = clickFunctionNow;
-    }
-    clickFunctionNow->update();
 }
 
 void CreateMap::rectangle_Pressed(ClickFunction* function) {
@@ -196,7 +163,8 @@ void CreateMap::rectangle_Pressed(ClickFunction* function) {
     if (function->getColor() == nullptr && clickcommand == nullptr) {
         function->changePress();
     }
-    function->update();}
+    function->update();
+}
 
 void CreateMap::color_Pressed(ClickColor* color) {
     if (clickcolor != nullptr) {
@@ -206,10 +174,6 @@ void CreateMap::color_Pressed(ClickColor* color) {
     if (clickcommand != nullptr) {
         clickcommand->changePress();
         clickcommand = nullptr;
-    }
-    if (clickFunctionNow != nullptr) {
-        clickFunctionNow->setColor(color);
-        clickFunctionNow->update();
     }
 }
 
@@ -296,8 +260,7 @@ void CreateMap::on_create_clicked() {
     else if (!isUnique(ui->name_level->text())) {
         QMessageBox::information(this, "Неверное название", "Такое название уже используется. Выберите другое название уровня.");
     }
-    else {
-        
+    else {       
         QDir* dir;
         QDir().mkdir("map");
         QFile qconfig(dir->currentPath() + "/map/config.txt");
@@ -433,39 +396,6 @@ void CreateMap::on_create_clicked() {
     }
 }
 
-void CreateMap::on_howToCreate_clicked()
-{
+void CreateMap::on_howToCreate_clicked() {
     QMessageBox::information(this, "Как создать уровень", "Выберите...");
 }
-
-/*void CreateMap::keyPressEvent(QKeyEvent* event) {
-    QCoreApplication::processEvents();
-    int key = event->key();
-    int colum = clickFunctionNow->getColum();
-    int row = clickFunctionNow->getRow();
-    if (key == Qt::Key_W || key == 1062 || key == Qt::Key_Up) {
-        if (row > 0) {
-            keyPressed(clickFunctionNow, vectorfunctions[row * ui->sizeOfMap->value() + colum - 1]);
-        }
-    }
-    else if (key == Qt::Key_S || key == 1067 || key == Qt::Key_Down) {
-        if (colum < ui->sizeOfMap->value() - 1) {
-            keyPressed(clickFunctionNow, vectorfunctions[row * ui->sizeOfMap->value() + colum + 1]);
-        }
-    }
-    else if (key == Qt::Key_D || key == 1042 || key == Qt::Key_Right) {
-        if (colum < ui->sizeOfMap->value() - 1) {
-            keyPressed(clickFunctionNow, vectorfunctions[(row + 1) * ui->sizeOfMap->value() + colum]);
-        }
-    }
-    else if (key == Qt::Key_A || key == 1060 || key == Qt::Key_Left) {
-        if (colum > 0) {
-            keyPressed(clickFunctionNow, vectorfunctions[(row - 1) * ui->sizeOfMap->value() + colum]);
-        }
-    }
-
-}*/
-//проверка на то что корабля больше нет
-//подсвечивание того что нажато
-//убрать звезды нажатием
-//выделение места где находишься убрать оконтовку

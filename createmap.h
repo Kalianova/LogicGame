@@ -16,27 +16,27 @@ class CreateMap : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit CreateMap(QWidget *parent = nullptr);
+    explicit CreateMap(QWidget* parent = nullptr);
     ~CreateMap();
 
 private:
-    Ui::CreateMap *ui;
+    Ui::CreateMap* ui;
     QGraphicsScene* createmap;
     QWidget* parentWindow;
     bool isUnique(QString);
     void setCheckBoxColor(QColor, QCheckBox*);
     void createScene();
-    void createColor(QColor,double, int);
+    void createColor(QColor, double, int);
     void createImage(QString, double, int, int);
     void createFunction(int, int, double);
     int sizeOfMap{ 10 };
-    void keyPressed(ClickFunction* before, ClickFunction* now);
     ClickColor* clickcolor;
     ClickCommand* clickcommand;
     ClickFunction* clickfunction;
     ClickFunction* clickFunctionNow{ nullptr };
     ClickFunction* player{ nullptr };
     std::vector<ClickFunction*> vectorfunctions;
+
 private slots:
     void color_Pressed(ClickColor*);
     void image_Pressed(ClickCommand*);
@@ -55,8 +55,6 @@ private slots:
     void on_cancel_clicked();
     void on_create_clicked();
     void on_howToCreate_clicked();
-protected:
-    //void keyPressEvent(QKeyEvent* event);
 };
 
 #endif // CREATEMAP_H

@@ -38,11 +38,15 @@ else(DEFINED DATA_INSTALL_DIR)
 	set(relResPath res/)
 endif(DEFINED DATA_INSTALL_DIR)
 
-install(DIRECTORY
-       image
-DESTINATION ${relResPath})
 
 target_link_libraries(LogicGame Qt5::Widgets)
+
+
+add_custom_command(TARGET LogicGame POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:Qt5::Core> $<TARGET_FILE_DIR:LogicGame>
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:Qt5::Gui> $<TARGET_FILE_DIR:LogicGame>
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:Qt5::Widgets> $<TARGET_FILE_DIR:LogicGame>
+    )
 
 
 

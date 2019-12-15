@@ -7,22 +7,23 @@
 
 
 levels::levels(QWidget* parent) :
-	QMainWindow(parent),
-	parentWindow(parent),
+    QMainWindow(parent),
+    parentWindow(parent),
     ui(new Ui::levels)
 {
     ui->setupUi(this);
     scene = new QGraphicsScene();
-      this->setWindowTitle("Уровни");
+    this->setWindowTitle("Уровни");
+    setWindowFlags(Qt::Window | Qt::WindowCloseButtonHint);
 
-	ui->graphicsView->resize(733, 463);
-	scene->setSceneRect(0, 0, ui->graphicsView->width() - 4, ui->graphicsView->height() - 4);
-    
+    ui->graphicsView->resize(733, 463);
+    scene->setSceneRect(0, 0, ui->graphicsView->width() - 4, ui->graphicsView->height() - 4);
+
     ui->graphicsView->setScene(scene);
     readLevels();
-	drawLevels();
+    drawLevels();
 
-    dialog = new QFileDialog(this);  
+    dialog = new QFileDialog(this);
 
     connect(ui->create, SIGNAL(triggered()), this, SLOT(on_create_clicked()));
     connect(ui->download, SIGNAL(triggered()), this, SLOT(on_download_clicked()));
@@ -109,7 +110,7 @@ void levels::level_Pressed(ClickColor* level) {
     }
     else {
         int begin = clicklevel->getNumberColor();
-        int end  = level->getNumberColor();
+        int end = level->getNumberColor();
         std::pair<QString, int>  pair = pathsToLevel[clicklevel->getNumberColor()];
         pathsToLevel.erase(pathsToLevel.begin() + clicklevel->getNumberColor());
         if (clicklevel->getNumberColor() > level->getNumberColor()) {
@@ -122,20 +123,18 @@ void levels::level_Pressed(ClickColor* level) {
         clicklevel->changePress();
         writeFile();
         moving = false;
-        QPointF position;//= rects[level->getNumberColor() + 1]->pos();
+        QPointF position;
         int index = level->getNumberColor() + 1;
         if (clicklevel->getNumberColor() > level->getNumberColor()) {
             position = rects[level->getNumberColor() + 1]->pos();
-            for (size_t i = level->getNumberColor() + 1; i < clicklevel->getNumberColor(); i ++ )
-            {
+            for (size_t i = level->getNumberColor() + 1; i < clicklevel->getNumberColor(); i++) {
                 rects[i]->setIndex(i + 1);
                 rects[i]->setPos(rects[i + 1]->pos());
             }
         }
         else {
             position = rects[level->getNumberColor()]->pos();;
-            for (size_t i = level->getNumberColor(); i > clicklevel->getNumberColor(); i--)
-            {
+            for (size_t i = level->getNumberColor(); i > clicklevel->getNumberColor(); i--) {
                 rects[i]->setIndex(i - 1);
                 rects[i]->setPos(rects[i - 1]->pos());
             }
@@ -147,11 +146,11 @@ void levels::level_Pressed(ClickColor* level) {
 }
 
 void levels::test() {
-
     readLevels();
     drawLevels();
     clicklevel = nullptr;
 }
+
 void levels::on_exit_clicked() {
     parentWindow->setVisible(true);
     this->close();
@@ -230,7 +229,7 @@ void levels::on_deleteLevel_clicked() {
 
 void levels::on_moveLevel_clicked() {
     if (clicklevel != nullptr) {
-        QMessageBox::information(this, "Выберите уровень", "Выберите уровень после которого хотите вставить уровень");
+        QMessageBox::information(this, "Выберите уровень", "Выберите уровень, после которого хотите поместить выбранный ранее уровень");
         moving = true;
         int number = clicklevel->getNumberColor();
         readLevels();
