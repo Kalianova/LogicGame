@@ -3,7 +3,7 @@
 project(LogicGame LANGUAGES CXX)
 
 
-set (CMAKE_PREFIX_PATH "D:\\Qt\\5.13.1\\msvc2017_64")
+set (CMAKE_PREFIX_PATH "C:\\Qt\\5.13.1\\msvc2017_64")
 
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)

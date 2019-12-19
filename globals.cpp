@@ -1,7 +1,6 @@
 #include "globals.h"
 #include "map.h"
 
-
 void globals::setLevelDone(QString path) {
     QFile qfile(QDir().currentPath() + "/map/config.txt");
     QFile qtemp(QDir().currentPath() + "/map/configtemp.txt");

@@ -6,10 +6,10 @@
 #include <QAction>
 
 
-levels::levels(QWidget* parent) :
+Levels::Levels(QWidget* parent) :
     QMainWindow(parent),
     parentWindow(parent),
-    ui(new Ui::levels)
+    ui(new Ui::Levels)
 {
     ui->setupUi(this);
     scene = new QGraphicsScene();
@@ -29,7 +29,7 @@ levels::levels(QWidget* parent) :
     connect(ui->download, SIGNAL(triggered()), this, SLOT(on_download_clicked()));
 }
 
-void levels::readLevels(){
+void Levels::readLevels(){
     pathsToLevel.clear();
     QFile qfile(QDir().currentPath()+"/map/config.txt");
     qfile.open(QFile::ReadOnly | QFile::Text);
@@ -49,7 +49,7 @@ void levels::readLevels(){
     writeFile();
 }
 
-void levels::drawLevels() {
+void Levels::drawLevels() {
     for (auto i : rects) {
         delete i;
     }
@@ -75,13 +75,13 @@ void levels::drawLevels() {
     }
 }
 
-void levels::openLevel(QString path) {
-    gamewindow* window = new gamewindow(path, parentWindow);
+void Levels::openLevel(QString path) {
+    GameWindow* window = new GameWindow(path, parentWindow);
     window->show();
     this->setVisible(false);
 }
 
-void levels::writeFile() {
+void Levels::writeFile() {
     QFile qfile(QDir().currentPath() + "/map/config.txt");
     qfile.open(QFile::WriteOnly);
     QTextStream writeStreamConfig(&qfile);
@@ -92,11 +92,14 @@ void levels::writeFile() {
     qfile.close();
 }
 
-levels::~levels() {
+Levels::~Levels() {
     delete ui;
+    delete scene;
+    delete clicklevel;
+    delete dialog;
 }
 
-void levels::level_Pressed(ClickColor* level) {
+void Levels::level_Pressed(ClickColor* level) {
     if (!moving) {
         if (level->isPressed()) {
             clicklevel = nullptr;
@@ -145,18 +148,12 @@ void levels::level_Pressed(ClickColor* level) {
     }
 }
 
-void levels::test() {
-    readLevels();
-    drawLevels();
-    clicklevel = nullptr;
-}
-
-void levels::on_exit_clicked() {
+void Levels::on_exit_clicked() {
     parentWindow->setVisible(true);
     this->close();
 }
 
-void levels::on_beginLevel_clicked() {
+void Levels::on_beginLevel_clicked() {
     if (clicklevel != nullptr) {
         openLevel(pathsToLevel[clicklevel->getNumberColor()].first);
         readLevels();
@@ -168,13 +165,13 @@ void levels::on_beginLevel_clicked() {
     }
 }
 
-void levels::on_create_clicked() {
+void Levels::on_create_clicked() {
     CreateMap* window = new CreateMap(parentWindow);
     this->hide();
     window->show();
 }
 
-void levels::on_download_clicked() {
+void Levels::on_download_clicked() {
     QString path = dialog->getOpenFileName(this, "Выберите уровень", QDir::currentPath() + "/map", tr("Text files(*.txt)"));  
     if (path != nullptr) {
         QFile qconfig(QDir().currentPath() + "/map/config.txt");
@@ -203,7 +200,7 @@ void levels::on_download_clicked() {
 }
 
 
-void levels::on_deleteLevel_clicked() {
+void Levels::on_deleteLevel_clicked() {
     if (clicklevel != nullptr) {
         int n = QMessageBox::warning(this, "Удаление уровня", "Вы дествительно хотите удалить этот уровень?", "Да", "Нет", NULL, 0, 1);
         if (n == 0) {
@@ -227,7 +224,7 @@ void levels::on_deleteLevel_clicked() {
     }
 }
 
-void levels::on_moveLevel_clicked() {
+void Levels::on_moveLevel_clicked() {
     if (clicklevel != nullptr) {
         QMessageBox::information(this, "Выберите уровень", "Выберите уровень, после которого хотите поместить выбранный ранее уровень");
         moving = true;

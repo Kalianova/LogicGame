@@ -1,4 +1,4 @@
-﻿#include "click.h"
+#include "click.h"
 
 
 ClickColor::ClickColor(QColor Color, double Size, int Index)
@@ -88,6 +88,7 @@ void ClickFunction::changePressFunction() {
     pressed = !pressed;
     update();
 }
+
 void ClickFunction::changePressCommand() {
     if (clickcolor != nullptr) {
         clickcolor->changePress();
@@ -117,6 +118,11 @@ void ClickFunction::paint(QPainter* painter, const QStyleOptionGraphicsItem* opt
     Q_UNUSED(widget)
 }
 
+ClickFunction::~ClickFunction() {
+    delete pen;
+    delete clickcolor;
+    delete clickcommand;
+}
 
 void ClickFunction::mousePressEvent(QGraphicsSceneMouseEvent* event) {
     if (!pressed) {

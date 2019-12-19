@@ -44,7 +44,7 @@ void MainWindow::on_NewGame_clicked() {
         QMessageBox::information(this, "Уровни пройдены", "Выберите уровень в меню уровней");
     }
     else {
-        gamewindow* window = new gamewindow(name, this);
+        GameWindow* window = new GameWindow(name, this);
         window->show();
         this->setVisible(false);
     }
@@ -57,7 +57,7 @@ void MainWindow::on_DevelopMap_clicked() {
 }
 
 void MainWindow::on_Levels_clicked() {
-	levels *window = new levels(this);
+	Levels *window = new Levels(this);
 	window->show();
 	this->hide();
 }

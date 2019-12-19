@@ -32,6 +32,12 @@ CreateMap::CreateMap(QWidget* parent) :
 
 CreateMap::~CreateMap() {
     delete ui;
+    delete clickcolor;
+    delete clickcommand;
+    delete clickfunction;
+    delete clickFunctionNow;
+    delete player;
+    delete createmap;
 }
 
 bool CreateMap::isUnique(QString name) {
@@ -120,7 +126,7 @@ void CreateMap::rectangle_Pressed(ClickFunction* function) {
     if (clickcommand != nullptr) {
         if (function->getColor() != nullptr) {
             if (function->getColor()->getColor() != Qt::gray) {
-                if (clickcommand->getIndex() > 5) {
+                if (clickcommand->getNumberCommand() > 5) {
                     if (player != nullptr) {
                         player->setCommand(nullptr);
                         player->update();
@@ -128,7 +134,7 @@ void CreateMap::rectangle_Pressed(ClickFunction* function) {
                     player = function;
                 }
                 function->setCommand(clickcommand);
-                switch (function->getCommand()->getIndex()) {
+                switch (function->getCommand()->getNumberCommand()) {
                 case 7:
                     function->setRotation(90);
                     break;
@@ -293,7 +299,7 @@ void CreateMap::on_create_clicked() {
             writeStream << "\n";
         }
         writeStream << playerX << " " << playerY << " " <<
-            (player->getCommand()->getIndex() - 6) * 90 << "\n";
+            (player->getCommand()->getNumberCommand() - 6) * 90 << "\n";
         QString commands;
         QString functions;
         QString colors;
@@ -397,5 +403,10 @@ void CreateMap::on_create_clicked() {
 }
 
 void CreateMap::on_howToCreate_clicked() {
-    QMessageBox::information(this, "Как создать уровень", "Выберите...");
+    QMessageBox::information(this, "Как создать уровень", "1) Выберите размер карты\n"
+        "2) Заполните карту цветами, звездами и расположите ракету\n"
+        "3) Выберите нужные для прохождения уровня команды, цвета и функции\n"
+        "4) Укажите название уровня\n"
+        "5) Нажмите кнопку создать\n"
+    );
 }
