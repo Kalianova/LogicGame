@@ -124,6 +124,17 @@ ClickFunction::~ClickFunction() {
     delete clickcommand;
 }
 
+int ClickFunction::getFunction() {
+    int color{ 0 }, command{ 0 };
+    if (clickcolor != nullptr) {
+        color = clickcolor->getNumberColor();
+    }
+    if (clickcommand != nullptr) {
+        command = clickcommand->getNumberCommand();
+    }
+    return color + command;
+}
+
 void ClickFunction::mousePressEvent(QGraphicsSceneMouseEvent* event) {
     if (!pressed) {
         emit functionChanged(this);
