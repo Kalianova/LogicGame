@@ -179,7 +179,6 @@ private:
 * @brief Таймер
 */
     QTimer* timer;
-
     Ui::GameWindow *ui;
     QWidget* parentWindow;
 

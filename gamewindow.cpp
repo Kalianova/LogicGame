@@ -48,6 +48,11 @@ GameWindow::GameWindow(QString path, QWidget* parent) :
 }
 
 GameWindow::~GameWindow() {
+    for (size_t i = 0; i < map.getSize(); i++) {
+        for (size_t j = 0; j < map.getSize(); j++) {
+            deleteRect(i, j);
+        }
+    }
     delete ui;
     delete timer;
     delete scenemap;
