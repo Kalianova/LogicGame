@@ -538,13 +538,14 @@ void GameWindow::on_Play_clicked() {
 void GameWindow::newLevel() {
     if (pathToMap == nullptr) {
         QMessageBox::information(this, "Уровни пройдены", "Выберите уровень в меню уровней");
+        parentWindow->setVisible(true);
+        this->close();
     }
     else {
         map.ReadFrom(pathToMap);
         ui->LevelName->setText(globals::nameOfLevelFromPath(pathToMap));
         on_Restart_clicked();
     }
-    on_Stop_clicked();
 }
 
 void GameWindow::on_Restart_clicked() {
