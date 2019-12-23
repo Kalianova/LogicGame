@@ -116,6 +116,9 @@ void GameWindow::setSceneCommands() {
         vectorFunction[0][0]->changePress();
         clickFunctionNow = vectorFunction[0][0];
     }
+    else {
+        clickable = false;
+    }
     for (int i = 0; i < map.getCommandsCount(); i++) {
         setCommand(i);
     }
@@ -514,15 +517,17 @@ void GameWindow::command_Pressed(ClickCommand* command) {
 }
 
 void GameWindow::on_Stop_clicked() {
-    clickFunctionNow->changePressCommand();
-    clickable = true;
-    timer->stop();
-    scenemap->clear();
-    countStars = 0;
-    map.ReadFrom(pathToMap);
-    drawMap(map);
-    map.player = Player(map.player.getBeginRow(), map.player.getBeginColum(), map.player.getBeginRotation());
-    setPlayer(map.player);
+    if (clickFunctionNow != nullptr) {
+        clickFunctionNow->changePressCommand();
+        clickable = true;
+        timer->stop();
+        scenemap->clear();
+        countStars = 0;
+        map.ReadFrom(pathToMap);
+        drawMap(map);
+        map.player = Player(map.player.getBeginRow(), map.player.getBeginColum(), map.player.getBeginRotation());
+        setPlayer(map.player);
+    }
 }
 
 void GameWindow::on_Play_clicked() {
@@ -549,14 +554,16 @@ void GameWindow::newLevel() {
 }
 
 void GameWindow::on_Restart_clicked() {
-    clickable = true;
-    if (globals::goToLevel() != nullptr) {
-        scenecommands->clear();
-        vectorFunction.resize(0);
-        vectorColor.resize(0);
-        vectorCommand.resize(0);
-        setSceneCommands();
-        on_Stop_clicked();
+    if (clickFunctionNow != nullptr) {
+        clickable = true;
+        if (globals::goToLevel() != nullptr) {
+            scenecommands->clear();
+            vectorFunction.resize(0);
+            vectorColor.resize(0);
+            vectorCommand.resize(0);
+            setSceneCommands();
+            on_Stop_clicked();
+        }
     }
 }
 

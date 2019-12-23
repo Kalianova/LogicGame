@@ -62,6 +62,7 @@ void CreateMap::setCheckBoxColor(QColor color, QCheckBox* checkbox) {
 void CreateMap::createScene() {
     double size = (this->ui->graphicsView->height()) / 10;
     double sizeOfRectMap = size * 10 / sizeOfMap;
+    vectorfunctions.clear();
     createColor(Qt::gray, size, 0);
     createColor(Qt::blue, size, 1);
     createColor(Qt::darkMagenta, size, 2);

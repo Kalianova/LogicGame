@@ -220,7 +220,7 @@ private:
     /**
 * @brief Нажатый квадрат функции
 */
-    ClickFunction* clickFunctionNow;
+    ClickFunction* clickFunctionNow{ nullptr };
 
     /**
 * @brief Можно ли ракете двигаться дальше
