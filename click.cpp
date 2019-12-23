@@ -120,8 +120,6 @@ void ClickFunction::paint(QPainter* painter, const QStyleOptionGraphicsItem* opt
 
 ClickFunction::~ClickFunction() {
     delete pen;
-    delete clickcolor;
-    delete clickcommand;
 }
 
 int ClickFunction::getFunction() {

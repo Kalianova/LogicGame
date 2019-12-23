@@ -94,8 +94,8 @@ void Levels::writeFile() {
 
 Levels::~Levels() {
     delete ui;
-    delete scene;
     delete clicklevel;
+    delete scene;
     delete dialog;
 }
 

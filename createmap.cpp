@@ -32,8 +32,6 @@ CreateMap::CreateMap(QWidget* parent) :
 
 CreateMap::~CreateMap() {
     delete ui;
-    delete clickcolor;
-    delete clickcommand;
     delete clickfunction;
     delete clickFunctionNow;
     delete player;
