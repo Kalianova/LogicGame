@@ -201,26 +201,28 @@ void Levels::on_download_clicked() {
 
 
 void Levels::on_deleteLevel_clicked() {
-    if (clicklevel != nullptr) {
-        int n = QMessageBox::warning(this, "Удаление уровня", "Вы дествительно хотите удалить этот уровень?", "Да", "Нет", NULL, 0, 1);
-        if (n == 0) {
-            QFile qfile(QDir().currentPath() + "/map/config.txt");
-            qfile.open(QFile::WriteOnly);
-            QTextStream writeStreamConfig(&qfile);
-            writeStreamConfig.setCodec(QTextCodec::codecForName("UTF-8"));
-            for (size_t i = 0; i < pathsToLevel.size(); i++) {
-                if (i != clicklevel->getNumberColor()) {
-                    writeStreamConfig << pathsToLevel[i].first << " " << pathsToLevel[i].second << "\r\n";
+    if (moving == false) {
+        if (clicklevel != nullptr) {
+            int n = QMessageBox::warning(this, "Удаление уровня", "Вы дествительно хотите удалить этот уровень?", "Да", "Нет", NULL, 0, 1);
+            if (n == 0) {
+                QFile qfile(QDir().currentPath() + "/map/config.txt");
+                qfile.open(QFile::WriteOnly);
+                QTextStream writeStreamConfig(&qfile);
+                writeStreamConfig.setCodec(QTextCodec::codecForName("UTF-8"));
+                for (size_t i = 0; i < pathsToLevel.size(); i++) {
+                    if (i != clicklevel->getNumberColor()) {
+                        writeStreamConfig << pathsToLevel[i].first << " " << pathsToLevel[i].second << "\r\n";
+                    }
                 }
+                qfile.close();
+                readLevels();
+                drawLevels();
+                clicklevel = nullptr;
             }
-            qfile.close();
-            readLevels();
-            drawLevels();
-            clicklevel = nullptr;
         }
-    }
-    else {
-        QMessageBox::information(this, "Уровень не выбран", "Выберите уровень");
+        else {
+            QMessageBox::information(this, "Уровень не выбран", "Выберите уровень");
+        }
     }
 }
 

@@ -538,6 +538,18 @@ void GameWindow::on_Play_clicked() {
         commandNow = 0;
         timer->start();
     }
+    else {
+        if (countStars == 0) {
+            int k = QMessageBox::question(this, "Уровень решен", "Поздравляю", "Остаться на этом", "Следующий уровень", 0, 1);
+            if (k) {
+                globals::setLevelDone(pathToMap);
+                pathToMap = globals::goToLevel();
+                newLevel();
+            }
+            timer->stop();
+            move = true;
+        }
+    }
 }
 
 void GameWindow::newLevel() {

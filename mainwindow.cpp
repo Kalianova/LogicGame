@@ -12,18 +12,6 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
     this->setWindowTitle("Главное меню");
-}
-
-MainWindow::~MainWindow() {
-    delete ui;
-}
-
-void MainWindow::on_Exit_clicked() {
-    this->close();
-}
-
-
-void MainWindow::on_NewGame_clicked() {
     if (!QFile(QDir().currentPath() + "/map/config.txt").exists()) {
         QDir().mkdir("map");
         QFile read(":/map/config.txt");
@@ -39,6 +27,18 @@ void MainWindow::on_NewGame_clicked() {
         write.close();
         read.close();
     }
+}
+
+MainWindow::~MainWindow() {
+    delete ui;
+}
+
+void MainWindow::on_Exit_clicked() {
+    this->close();
+}
+
+
+void MainWindow::on_NewGame_clicked() {
     QString name = globals::goToLevel();
     if (name == nullptr) {
         QMessageBox::information(this, "Уровни пройдены", "Выберите уровень в меню уровней");
