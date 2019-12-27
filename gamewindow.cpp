@@ -116,7 +116,6 @@ void GameWindow::setSceneCommands() {
         vectorFunction[0][0]->changePress();
         clickFunctionNow = vectorFunction[0][0];
     }
-
     for (int i = 0; i < map.getCommandsCount(); i++) {
         setCommand(i);
     }
